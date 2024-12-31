@@ -1,49 +1,80 @@
-from users.models import User
+from django.contrib.auth import get_user_model
+from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
-class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+User = get_user_model()
 
+
+class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+    
     @classmethod
     def get_token(cls, user):
         token = super().get_token(user)
-        # Adiciona informações extras dentro do JWT
         token['role'] = user.role
+        token['username'] = user.username
+        token['email'] = user.email
         return token
 
     def validate(self, attrs):
         data = super().validate(attrs)
-        # Inclui dados extras na resposta da API
+        data['id'] = self.user.id
         data['role'] = self.user.role
         data['username'] = self.user.username
+        data['email'] = self.user.email
         return data
-    
-class UserRegisterSerializer(serializers.ModelSerializer): 
-    
+
+
+class UserRegisterSerializer(serializers.ModelSerializer):
     username = serializers.CharField(required=True)
     email = serializers.EmailField(required=True)
-    password = serializers.CharField(write_only=True)
-    role = serializers.ChoiceField(choices=User.ROLE_CHOICES, required= True)
+    password = serializers.CharField(write_only=True, required=True)
+    role = serializers.ChoiceField(choices=User.ROLE_CHOICES, required=True)
 
     class Meta:
         model = User
         fields = ['id', 'username', 'email', 'password', 'role']
+
+    def validate_password(self, value):
+        
+        validate_password(value, user=None)
+        return value
 
     def create(self, validated_data):
         user = User.objects.create_user(
             username=validated_data['username'],
             email=validated_data['email'],
             password=validated_data['password'],
-            role=validated_data.get('role', 'student')
+            role=validated_data.get('role', 'student'),
         )
         return user
+
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['id', 'username', 'email', 'role', 'is_staff']
-        # força para não incluir relações automaticamente
+        
         extra_kwargs = {
-            'goups': {'read_only': True},
-            'user_permissions': {'read_only', True}
+            'groups': {'read_only': True},
+            'user_permissions': {'read_only': True},
         }
+
+
+class ChangePasswordSerializer(serializers.Serializer):
+    old_password = serializers.CharField(write_only=True)
+    new_password1 = serializers.CharField(write_only=True)
+    new_password2 = serializers.CharField(write_only=True)
+
+    def validate(self, attrs):
+        user = self.context['request'].user
+
+        if not user.check_password(attrs['old_password']):
+            raise serializers.ValidationError({"old_password": "Senha atual inválida."})
+
+        if attrs['new_password1'] != attrs['new_password2']:
+            raise serializers.ValidationError({"new_password2": "As senhas não coincidem."})
+
+        
+        validate_password(attrs['new_password1'], user=user)
+        return attrs
