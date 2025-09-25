@@ -2,11 +2,12 @@
 
 import Link from "next/link"
 import { useState } from "react"
-import { Eye, EyeOff, Mail, Lock, User, Github } from "lucide-react"
+import { Eye, EyeOff, Mail, Lock, User, Github, UserPlus } from "lucide-react"
 
-export default function Login() {
+export default function Register() {
   const [showPassword, setShowPassword] = useState(false)
-  const [rememberMe, setRememberMe] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const [acceptTerms, setAcceptTerms] = useState(false)
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
@@ -14,15 +15,36 @@ export default function Login() {
         {/* Cabeçalho */}
         <div className="text-center">
           <div className="mx-auto h-16 w-16 bg-blue-500 rounded-lg flex items-center justify-center mb-6">
-            <User className="h-8 w-8 text-white" />
+            <UserPlus className="h-8 w-8 text-white" />
           </div>
-          <h2 className="text-3xl font-bold text-gray-900 mb-2">Acesse sua conta</h2>
-          <p className="text-gray-600">Entre com suas credenciais para continuar</p>
+          <h2 className="text-3xl font-bold text-gray-900 mb-2">Criar conta</h2>
+          <p className="text-gray-600">Preencha os dados para se cadastrar</p>
         </div>
 
-        {/* Formulário de login */}
+        {/* Formulário de cadastro */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
           <form className="space-y-6" action="#" method="POST">
+            {/* Campo Nome */}
+            <div>
+              <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
+                Nome completo
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <User className="h-5 w-5 text-gray-400" />
+                </div>
+                <input
+                  id="name"
+                  name="name"
+                  type="text"
+                  autoComplete="name"
+                  required
+                  className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500"
+                  placeholder="Seu nome completo"
+                />
+              </div>
+            </div>
+
             {/* Campo Email */}
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
@@ -57,7 +79,7 @@ export default function Login() {
                   id="password"
                   name="password"
                   type={showPassword ? "text" : "password"}
-                  autoComplete="current-password"
+                  autoComplete="new-password"
                   required
                   className="block w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500"
                   placeholder="Digite sua senha"
@@ -76,32 +98,67 @@ export default function Login() {
               </div>
             </div>
 
-            {/* Lembrar de mim & Esqueceu a senha */}
-            <div className="flex items-center justify-between">
-              <div className="flex items-center">
+            {/* Campo Confirmar Senha */}
+            <div>
+              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-2">
+                Confirmar senha
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Lock className="h-5 w-5 text-gray-400" />
+                </div>
                 <input
-                  id="remember-me"
-                  name="remember-me"
-                  type="checkbox"
-                  checked={rememberMe}
-                  onChange={(e) => setRememberMe(e.target.checked)}
-                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  type={showConfirmPassword ? "text" : "password"}
+                  autoComplete="new-password"
+                  required
+                  className="block w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500"
+                  placeholder="Confirme sua senha"
                 />
-                <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-700">
-                  Lembrar de mim
-                </label>
+                <button
+                  type="button"
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                >
+                  {showConfirmPassword ? (
+                    <EyeOff className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+                  ) : (
+                    <Eye className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+                  )}
+                </button>
               </div>
-              <Link href="/forgot-password" className="text-sm text-blue-600 hover:text-blue-500 font-medium">
-                Esqueceu a senha?
-              </Link>
             </div>
 
-            {/* Botão Entrar */}
+            {/* Termos e Condições */}
+            <div className="flex items-start">
+              <input
+                id="accept-terms"
+                name="accept-terms"
+                type="checkbox"
+                checked={acceptTerms}
+                onChange={(e) => setAcceptTerms(e.target.checked)}
+                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded mt-1"
+              />
+              <label htmlFor="accept-terms" className="ml-2 block text-sm text-gray-700">
+                Aceito os{" "}
+                <Link href="/terms" className="text-blue-600 hover:text-blue-500 font-medium">
+                  termos de uso
+                </Link>{" "}
+                e{" "}
+                <Link href="/privacy" className="text-blue-600 hover:text-blue-500 font-medium">
+                  política de privacidade
+                </Link>
+              </label>
+            </div>
+
+            {/* Botão Criar Conta */}
             <button
               type="submit"
-              className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+              disabled={!acceptTerms}
+              className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
             >
-              Entrar
+              Criar conta
             </button>
           </form>
 
@@ -112,12 +169,12 @@ export default function Login() {
                 <div className="w-full border-t border-gray-300" />
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white text-gray-500">Ou continue com</span>
+                <span className="px-2 bg-white text-gray-500">Ou cadastre-se com</span>
               </div>
             </div>
           </div>
 
-          {/* Login Social */}
+          {/* Cadastro Social */}
           <div className="mt-6 grid grid-cols-2 gap-3">
             <button
               type="button"
@@ -153,12 +210,12 @@ export default function Login() {
           </div>
         </div>
 
-        {/* Link para Cadastro */}
+        {/* Link para Login */}
         <div className="text-center">
           <p className="text-sm text-gray-600">
-            Não tem uma conta?{" "}
-            <Link href="/register" className="font-medium text-blue-600 hover:text-blue-500">
-              Cadastre-se aqui
+            Já tem uma conta?{" "}
+            <Link href="/login" className="font-medium text-blue-600 hover:text-blue-500">
+              Faça login aqui
             </Link>
           </p>
         </div>
