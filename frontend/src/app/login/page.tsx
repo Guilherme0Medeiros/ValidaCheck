@@ -1,12 +1,21 @@
 "use client"
 
 import Link from "next/link"
-import { useState } from "react"
+import React, { useState } from "react"
 import { Eye, EyeOff, Mail, Lock, User, Github } from "lucide-react"
+import { login } from "@/services/auth"
 
-export default function Login() {
+export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [rememberMe, setRememberMe] = useState(false)
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await login(email, password)
+  }
+
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
@@ -22,7 +31,7 @@ export default function Login() {
 
         {/* Formulário de login */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
-          <form className="space-y-6" action="#" method="POST">
+          <form className="space-y-6" action="#" method="POST" onSubmit={handleSubmit}>
             {/* Campo Email */}
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
@@ -40,6 +49,7 @@ export default function Login() {
                   required
                   className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500"
                   placeholder="seu@email.com"
+                  onChange={(e) => setEmail(e.target.value)}
                 />
               </div>
             </div>
@@ -61,6 +71,7 @@ export default function Login() {
                   required
                   className="block w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500"
                   placeholder="Digite sua senha"
+                  onChange={(e) => setPassword(e.target.value)}
                 />
                 <button
                   type="button"

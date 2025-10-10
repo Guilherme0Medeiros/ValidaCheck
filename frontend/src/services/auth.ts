@@ -1,8 +1,10 @@
-import axios from "axios";
+"use client";
 
-async function login(email, password) {
+import api from "@/lib/axios";
+
+export async function login(email: string, password: string) {
     try {
-        const response = await axios.post("http://localhost:8000/api/token", {
+        const response = await api.post("token/", {
             email,
             password,
         });
@@ -16,9 +18,9 @@ async function login(email, password) {
 
         // Redireciona conforme o papel
         if (role === "secretary") {
-            window.location.href = "/secretary";
+            window.location.href = "/secretaria";
         } else {
-            window.location.href = "/student";
+            window.location.href = "/estudante";
         }
     } catch (error) {
         alert("E-mail ou Senha inválidos")
