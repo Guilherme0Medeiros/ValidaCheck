@@ -1,6 +1,18 @@
-import { Home, BookOpen, FileText, Clock, Plus, User, Award, Bell, CheckCircle, AlertCircle } from "lucide-react"
+import { Home, BookOpen, FileText, Clock, Plus, User, Award, Bell, CheckCircle, AlertCircle, UserRound } from "lucide-react"
+import { useRouter } from "next/router"
+import { useEffect } from "react";
+import SolicitarAtividade from "../solicitar-atividade/page";
+import Link from "next/link";
 
-export default function HomePage() {
+export default function EstudantePagina() {
+  // const router = useRouter();
+
+  // useEffect(() => {
+  //   const role = localStorage.getItem("role")
+  //   if (!role) router.push('/login');
+  //   else if (role !== "student") router.push('/login');
+  // }, [router]);
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -88,19 +100,23 @@ export default function HomePage() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto mb-8">
           {/* Solicitar Nova Atividade */}
           <div className="bg-white rounded-lg border border-blue-200 hover:border-blue-300 hover:shadow-lg transition-all cursor-pointer p-6">
-            <div className="text-center">
-              <div className="w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                <div className="relative">
-                  <FileText className="w-8 h-8 text-white" />
-                  <Plus className="w-4 h-4 text-white absolute -bottom-1 -right-1 bg-blue-600 rounded-full p-0.5" />
+            <Link href={'/solicitar-atividade'}>
+              <div className="text-center">
+                <div className="w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <div className="relative">
+                    <FileText className="w-8 h-8 text-white" />
+                    <Plus className="w-4 h-4 text-white absolute -bottom-1 -right-1 bg-blue-600 rounded-full p-0.5" />
+                  </div>
                 </div>
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">Solicitar nova atividade</h3>
+                <p className="text-gray-600 mb-4">Pedir aprovação de nova atividade</p>
+                
+                  <button className="w-full bg-blue-500 cursor-pointer hover:bg-blue-600 text-white py-2 px-4 rounded-md transition-colors">
+                    Nova Solicitação
+                  </button>
+                
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">Solicitar nova atividade</h3>
-              <p className="text-gray-600 mb-4">Pedir aprovação de nova atividade</p>
-              <button className="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-md transition-colors">
-                Nova Solicitação
-              </button>
-            </div>
+            </Link>
           </div>
 
           {/* Atividades em Andamento */}
@@ -119,6 +135,7 @@ export default function HomePage() {
 
           {/* Relatórios */}
           <div className="bg-white rounded-lg border border-yellow-200 hover:border-yellow-300 hover:shadow-lg transition-all cursor-pointer p-6">
+          <Link href={'/relatorios'}>
             <div className="text-center">
               <div className="w-16 h-16 bg-yellow-500 rounded-full flex items-center justify-center mx-auto mb-4">
                 <FileText className="w-8 h-8 text-white" />
@@ -129,6 +146,7 @@ export default function HomePage() {
                 Ver Relatórios
               </button>
             </div>
+          </Link>
           </div>
         </div>
 
