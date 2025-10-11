@@ -13,3 +13,19 @@ class IsOwnerOrAdmin(permissions.BasePermission):
 
         # Usuário comum só pode ver/editar suas próprias atividades
         return obj.submitted_by == request.user
+
+class IsStudent(permissions.BasePermission):
+    """
+    Permite acesso apenas para usuários com papel de aluno.
+    """
+
+    def has_permission(self, request, view):
+        return request.user.id_authenticated and request.user.role == 'student'
+    
+class IsSecretary(permissions.BasePermission):
+    """
+    Permite acesso apenas para usuários com papel de secretário(a).
+    """
+
+    def has_permission(self, request, view):
+        return request.user.id_authenticated and request.user.role == 'secretary'

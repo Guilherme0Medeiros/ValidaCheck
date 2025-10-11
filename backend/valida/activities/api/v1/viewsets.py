@@ -9,6 +9,7 @@ from activities.models import Category, Activity
 from activities.api.v1.serializers import CategorySerializer, ActivitySerializer
 from activities.api.v1.permissions import IsOwnerOrAdmin
 from activities.api.v1.filters import ActivityFilter
+from users.api.v1.serializers import CustomTokenObtainPairSerializer
 
 
 class CustomTokenObtainPairView(TokenObtainPairView):
@@ -34,12 +35,26 @@ class ActivityViewSet(viewsets.ModelViewSet):
     search_fields = ["title", "description", "category", "status"]
     ordering_fields = ["created_at", "start_date", "end_date"]
 
+    def get_permissions(self):
+        """
+        Aplica permissão diferentes dependendo do papel.
+        """
+        if self.action in ["approve", "reject", "request_complement"]:
+            permission_classes = [IsSecretary]
+        elif self.action in ["create", "update", "partial_update", "destroy", "list", "retrieve"]:
+            permission_classes = [IsStudent | IsSecretary]
+        else:
+            permission_classes = [permissions.IsAuthenticated]
+        return [permissions() for permission in permission_classes]
+
     def perform_create(self, serializer):
         serializer.save(submitted_by=self.request.user)
 
     def get_queryset(self):
         user = self.request.user
-        if user.is_staff:
+        if not user.is_authenticated:
+            return Activity.objects.nome()
+        if user.role == "secretary":
             return Activity.objects.all()
         return Activity.objects.filter(submitted_by=user)
 
