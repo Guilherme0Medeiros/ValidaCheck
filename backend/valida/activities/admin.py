@@ -1,15 +1,15 @@
 from django.contrib import admin
-from .models import Category, Activity
+from .models import Categoria, Atividade
 
 
-@admin.register(Category)
-class CategoryAdmin(admin.ModelAdmin):
-    list_display = ("name", "limit_hours")
-    search_fields = ("name",)
+@admin.register(Categoria)
+class CategoriaAdmin(admin.ModelAdmin):
+    list_display = ("nome", "limite_horas")
+    search_fields = ("nome",)
 
 
-@admin.register(Activity)
-class ActivityAdmin(admin.ModelAdmin):
-    list_display = ("title", "category", "status", "submitted_by", "created_at")
-    list_filter = ("status", "category")
-    search_fields = ("title", "description", "category", "submitted_by__username")
+@admin.register(Atividade)
+class AtividadeAdmin(admin.ModelAdmin):
+    list_display = ("titulo", "categoria", "status", "enviado_por", "criado_em")
+    list_filter = ("status", "categoria")
+    search_fields = ("titulo", "descricao", "categoria", "enviado_por__username")
