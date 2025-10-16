@@ -1,8 +1,8 @@
 from rest_framework.routers import DefaultRouter
-from activities.api.v1.viewsets import CategoryViewSet, ActivityViewSet
+from activities.api.v1.viewsets import CategoriaViewSet, AtividadeViewSet
 
 router = DefaultRouter()
-router.register(r"categories", CategoryViewSet, basename="categories")
-router.register(r"activities", ActivityViewSet, basename="activities")
+router.register(r"categorias", CategoriaViewSet, basename="categorias")
+router.register(r"atividades", AtividadeViewSet, basename="atividades")
 
 urlpatterns = router.urls

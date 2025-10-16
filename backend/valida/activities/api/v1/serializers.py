@@ -1,39 +1,39 @@
 from rest_framework import serializers
-from activities.models import Category, Activity
+from activities.models import Categoria, Atividade
 
 
-class CategorySerializer(serializers.ModelSerializer):
+class CategoriaSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Category
-        fields = ["id", "name", "limit_hours", "rules"]
+        model = Categoria
+        fields = ["id", "nome", "limite_horas", "regras"]
 
 
-class ActivitySerializer(serializers.ModelSerializer):
-    submitted_by = serializers.StringRelatedField(read_only=True)
+class AtividadeSerializer(serializers.ModelSerializer):
+    enviado_por = serializers.StringRelatedField(read_only=True)
 
     class Meta:
-        model = Activity
+        model = Atividade
         fields = [
             "id",
-            "title",
-            "category",
-            "description",
-            "location",
-            "start_date",
-            "end_date",
-            "hours_requested",
-            "hours_granted",
-            "documents",
+            "titulo",
+            "categoria",
+            "descricao",
+            "local",
+            "data_inicio",
+            "data_fim",
+            "horas_solicitadas",
+            "horas_concedidas",
+            "documentos",
             "checklist",
-            "reason",
-            "submitted_by",
+            "justificativa",
+            "enviado_por",
             "status",
-            "created_at",
-            "updated_at",
+            "criado_em",
+            "atualizado_em",
         ]
-        read_only_fields = ["submitted_by", "created_at", "updated_at", "hours_granted", "status"]
+        read_only_fields = ["enviado_por", "criado_em", "atualizado_em", "horas_concedidas", "status"]
 
     def create(self, validated_data):
         user = self.context["request"].user
-        validated_data["submitted_by"] = user
+        validated_data["enviado_por"] = user
         return super().create(validated_data)
