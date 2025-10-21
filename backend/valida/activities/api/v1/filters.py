@@ -1,13 +1,13 @@
 from django_filters import rest_framework as filters
-from activities.models import Activity
+from activities.models import Atividade
 
 
-class ActivityFilter(filters.FilterSet):
-    start_date = filters.DateFilter(field_name="start_date", lookup_expr="gte")
-    end_date = filters.DateFilter(field_name="end_date", lookup_expr="lte")
-    category = filters.CharFilter(field_name="category", lookup_expr="icontains")
+class AtividadeFilter(filters.FilterSet):
+    data_inicio = filters.DateFilter(field_name="data_inicio", lookup_expr="gte")
+    data_fim = filters.DateFilter(field_name="data_fim", lookup_expr="lte")
+    categoria = filters.CharFilter(field_name="categoria", lookup_expr="icontains")
     status = filters.CharFilter(field_name="status", lookup_expr="iexact")
 
     class Meta:
-        model = Activity
-        fields = ["category", "status", "start_date", "end_date"]
+        model = Atividade
+        fields = ["categoria", "status", "data_inicio", "data_fim"]
