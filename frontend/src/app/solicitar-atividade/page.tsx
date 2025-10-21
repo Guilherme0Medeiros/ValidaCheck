@@ -1,8 +1,8 @@
-"use client";
+"use client"
 
-import type React from "react";
-
-import { useState } from "react";
+import type React from "react"
+import Header from "@/components/Header"
+import { useState } from "react"
 import {
   Calendar,
   Upload,
@@ -11,7 +11,7 @@ import {
   MapPin,
   Tag,
   User,
-} from "lucide-react";
+} from "lucide-react"
 
 export default function SolicitarAtividade() {
   const [formData, setFormData] = useState({
@@ -24,51 +24,55 @@ export default function SolicitarAtividade() {
     horasSolicitadas: "",
     observacoes: "",
     descricao: "",
-  });
+  })
 
-  const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
+  const [uploadedFiles, setUploadedFiles] = useState<File[]>([])
 
   const handleInputChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
     >
   ) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
+    const { name, value } = e.target
+    setFormData((prev) => ({ ...prev, [name]: value }))
+  }
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
-      setUploadedFiles(Array.from(e.target.files));
+      setUploadedFiles(Array.from(e.target.files))
     }
-  };
+  }
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log("Form submitted:", formData);
-    console.log("Files:", uploadedFiles);
-  };
+    e.preventDefault()
+    console.log("Form submitted:", formData)
+    console.log("Files:", uploadedFiles)
+  }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <div className="max-w-6xl mx-auto">
-        {/* Header */}
+    <div className="min-h-screen bg-gray-50">
+      {/* Cabeçalho fixo e funcional */}
+      <Header />
+
+      {/* Conteúdo principal */}
+      <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        {/* Título e subtítulo */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
             Solicitar nova atividade
           </h1>
           <p className="text-gray-600">
-            Preencha os dados da atividade que deseja solicitar para análise
+            Preencha os dados da atividade que deseja solicitar para análise.
           </p>
         </div>
 
-        {/* Form */}
+        {/* Formulário */}
         <form
           onSubmit={handleSubmit}
           className="bg-white rounded-lg shadow-sm border border-gray-200 p-8"
         >
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {/* Left Column */}
+            {/* Coluna esquerda */}
             <div className="space-y-6">
               {/* Categoria */}
               <div>
@@ -202,7 +206,7 @@ export default function SolicitarAtividade() {
               </div>
             </div>
 
-            {/* Right Column */}
+            {/* Coluna direita */}
             <div className="space-y-6">
               {/* Vínculo */}
               <div>
@@ -311,7 +315,7 @@ export default function SolicitarAtividade() {
             </div>
           </div>
 
-          {/* Submit Button */}
+          {/* Botão de envio */}
           <div className="mt-8 flex justify-end">
             <button
               type="submit"
@@ -321,7 +325,7 @@ export default function SolicitarAtividade() {
             </button>
           </div>
         </form>
-      </div>
+      </main>
     </div>
-  );
+  )
 }
