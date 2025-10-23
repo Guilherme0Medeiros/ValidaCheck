@@ -1,60 +1,57 @@
 "use client"
 
 import Link from "next/link"
-import { useState } from "react"
+import React, { useState } from "react"
 import { Eye, EyeOff, Mail, Lock, User, Github, UserPlus } from "lucide-react"
+import api from "@/lib/axios"
+import { useRouter } from "next/navigation"
 
 export default function Register() {
-  const [showPassword, setShowPassword] = useState(false)
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
-  const [acceptTerms, setAcceptTerms] = useState(false)
-  const [loading, setLoading] = useState(false)
+  const router = useRouter();
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [acceptTerms, setAcceptTerms] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [ loading, setLoading] = useState(false);
+  const [formData, setFormData] = useState({
+    username: '',
+    email: '',
+    password: '',
+    confirmPassword:'',
+    role: 'student',
+  });  
 
-  const handleRegister = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    setLoading(true)
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({...formData, [e.target.name]: e.target.value});
+  }
 
-    const formData = new FormData(e.currentTarget)
-    const data = {
-      name: formData.get("name") as string,
-      email: formData.get("email") as string,
-      password: formData.get("password") as string,
-      confirmPassword: formData.get("confirmPassword") as string,
-    }
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
 
-    if (data.password !== data.confirmPassword) {
-      alert("As senhas não coincidem!")
-      setLoading(false)
-      return
+    if (formData.password !== formData.confirmPassword) {
+      setError("As senhas não coincidem!");
+      return;
     }
 
     try {
-      const response = await fetch("http://127.0.0.1:8000/api/v1/users/register/", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          username: data.name,
-          email: data.email,
-          password: data.password,
-        }),
-      })
+      setLoading(true)
+      await api.post("v1/users/register/", {
+        username: formData.username,
+        email: formData.email,
+        password: formData.password,
+        role: formData.role,
+      });
 
-      if (response.ok) {
-        alert("Conta criada com sucesso!")
-        window.location.href = "/login"
-      } else {
-        const err = await response.json()
-        alert("Erro ao registrar: " + JSON.stringify(err))
-      }
-    } catch (error) {
-      console.error(error)
-      alert("Erro de conexão com o servidor.")
-    } finally {
-      setLoading(false)
+      alert("usuário cadastrado com sucesso!")
+      router.push("/login");
+    } catch (err: any) {
+      setError("Erro ao cadastrar. Verifique os dados e tente novamente.")
+    } finally{
+      setLoading(false);
     }
   }
+
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
@@ -70,8 +67,11 @@ export default function Register() {
 
         {/* Formulário */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
-          <form className="space-y-6" onSubmit={handleRegister}>
-            {/* Nome */}
+          <form 
+            onSubmit={handleSubmit}
+            className="space-y-6"
+          >
+            {/* Campo Nome */}
             <div>
               <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
                 Nome completo
@@ -81,13 +81,14 @@ export default function Register() {
                   <User className="h-5 w-5 text-gray-400" />
                 </div>
                 <input
-                  id="name"
-                  name="name"
+                  name="username"
                   type="text"
-                  autoComplete="name"
+                  // autoComplete="name"
                   required
                   className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500"
                   placeholder="Seu nome completo"
+                  value={formData.username}
+                  onChange={handleChange}
                 />
               </div>
             </div>
@@ -102,13 +103,14 @@ export default function Register() {
                   <Mail className="h-5 w-5 text-gray-400" />
                 </div>
                 <input
-                  id="email"
                   name="email"
                   type="email"
-                  autoComplete="email"
+                  // autoComplete="email"
                   required
                   className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500"
                   placeholder="seu@email.com"
+                  value={formData.email}
+                  onChange={handleChange}
                 />
               </div>
             </div>
@@ -123,15 +125,16 @@ export default function Register() {
                   <Lock className="h-5 w-5 text-gray-400" />
                 </div>
                 <input
-                  id="password"
                   name="password"
                   type={showPassword ? "text" : "password"}
                   autoComplete="new-password"
                   required
                   className="block w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500"
                   placeholder="Digite sua senha"
+                  value={formData.password}
+                  onChange={handleChange}
                 />
-                <button
+                {/* <button
                   type="button"
                   className="absolute inset-y-0 right-0 pr-3 flex items-center"
                   onClick={() => setShowPassword(!showPassword)}
@@ -141,7 +144,7 @@ export default function Register() {
                   ) : (
                     <Eye className="h-5 w-5 text-gray-400 hover:text-gray-600" />
                   )}
-                </button>
+                </button> */}
               </div>
             </div>
 
@@ -155,15 +158,16 @@ export default function Register() {
                   <Lock className="h-5 w-5 text-gray-400" />
                 </div>
                 <input
-                  id="confirmPassword"
                   name="confirmPassword"
                   type={showConfirmPassword ? "text" : "password"}
-                  autoComplete="new-password"
+                  // autoComplete="new-password"
                   required
                   className="block w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500"
                   placeholder="Confirme sua senha"
+                  value={formData.confirmPassword}
+                  onChange={handleChange}
                 />
-                <button
+                {/* <button
                   type="button"
                   className="absolute inset-y-0 right-0 pr-3 flex items-center"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
@@ -173,7 +177,35 @@ export default function Register() {
                   ) : (
                     <Eye className="h-5 w-5 text-gray-400 hover:text-gray-600" />
                   )}
-                </button>
+                </button> */}
+              </div>
+            </div>
+
+            <div>
+              <p className="block text-sm font-medium mb-1">Tipo de conta</p>
+              <div className="flex max-w-full justify-between gap-2">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    name="role"
+                    type="radio"
+                    value="student"
+                    checked={formData.role === 'student'}
+                    onChange={handleChange}
+                    className="w-4 h-4 accent-blue-600"
+                  />
+                  <span>Aluno</span>
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    name="role"
+                    type="radio"
+                    value="secretary"
+                    checked={formData.role === 'secretary'}
+                    onChange={handleChange}
+                    className="w-4 h-4 accent-blue-600"
+                  />
+                  <span>Colaborador</span>
+                </label>
               </div>
             </div>
 
@@ -207,6 +239,9 @@ export default function Register() {
             >
               {loading ? "Criando conta..." : "Criar conta"}
             </button>
+            {error && (
+              <p className="text-red-500 text-sm text-center">{error}</p>
+            )}
           </form>
 
           {/* Divisor */}
