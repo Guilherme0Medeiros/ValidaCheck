@@ -8,6 +8,53 @@ export default function Register() {
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [acceptTerms, setAcceptTerms] = useState(false)
+  const [loading, setLoading] = useState(false)
+
+  const handleRegister = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    setLoading(true)
+
+    const formData = new FormData(e.currentTarget)
+    const data = {
+      name: formData.get("name") as string,
+      email: formData.get("email") as string,
+      password: formData.get("password") as string,
+      confirmPassword: formData.get("confirmPassword") as string,
+    }
+
+    if (data.password !== data.confirmPassword) {
+      alert("As senhas não coincidem!")
+      setLoading(false)
+      return
+    }
+
+    try {
+      const response = await fetch("http://127.0.0.1:8000/api/v1/users/register/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          username: data.name,
+          email: data.email,
+          password: data.password,
+        }),
+      })
+
+      if (response.ok) {
+        alert("Conta criada com sucesso!")
+        window.location.href = "/login"
+      } else {
+        const err = await response.json()
+        alert("Erro ao registrar: " + JSON.stringify(err))
+      }
+    } catch (error) {
+      console.error(error)
+      alert("Erro de conexão com o servidor.")
+    } finally {
+      setLoading(false)
+    }
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
@@ -21,10 +68,10 @@ export default function Register() {
           <p className="text-gray-600">Preencha os dados para se cadastrar</p>
         </div>
 
-        {/* Formulário de cadastro */}
+        {/* Formulário */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
-          <form className="space-y-6" action="#" method="POST">
-            {/* Campo Nome */}
+          <form className="space-y-6" onSubmit={handleRegister}>
+            {/* Nome */}
             <div>
               <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
                 Nome completo
@@ -45,7 +92,7 @@ export default function Register() {
               </div>
             </div>
 
-            {/* Campo Email */}
+            {/* Email */}
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
                 Email
@@ -66,7 +113,7 @@ export default function Register() {
               </div>
             </div>
 
-            {/* Campo Senha */}
+            {/* Senha */}
             <div>
               <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
                 Senha
@@ -98,7 +145,7 @@ export default function Register() {
               </div>
             </div>
 
-            {/* Campo Confirmar Senha */}
+            {/* Confirmar Senha */}
             <div>
               <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-2">
                 Confirmar senha
@@ -130,7 +177,7 @@ export default function Register() {
               </div>
             </div>
 
-            {/* Termos e Condições */}
+            {/* Termos */}
             <div className="flex items-start">
               <input
                 id="accept-terms"
@@ -152,13 +199,13 @@ export default function Register() {
               </label>
             </div>
 
-            {/* Botão Criar Conta */}
+            {/* Botão */}
             <button
               type="submit"
-              disabled={!acceptTerms}
+              disabled={!acceptTerms || loading}
               className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
             >
-              Criar conta
+              {loading ? "Criando conta..." : "Criar conta"}
             </button>
           </form>
 
@@ -174,7 +221,7 @@ export default function Register() {
             </div>
           </div>
 
-          {/* Cadastro Social */}
+          {/* Social */}
           <div className="mt-6 grid grid-cols-2 gap-3">
             <button
               type="button"
