@@ -13,9 +13,13 @@ class CustomTokenRefreshView(TokenRefreshView):
 class UserRegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = UserRegisterSerializer
-    permission_class = []
+    permission_classes = []
+    
+    def create(self, request, *args, **kwargs):
+        print("Dados recebidos no back", request.data)
+        return super().create(request, *args, **kwargs)
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    permission_class = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated]

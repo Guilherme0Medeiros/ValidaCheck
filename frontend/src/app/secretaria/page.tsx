@@ -1,12 +1,52 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Search, Filter, Eye, Clock, CheckCircle, XCircle, AlertCircle, FileText, Users } from "lucide-react"
-import Link from "next/link"
+import {
+  Search,
+  Filter,
+  FileText,
+  Clock,
+  CheckCircle,
+  AlertCircle,
+  XCircle,
+  Plus,
+  Download,
+  Calendar,
+} from "lucide-react"
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import NavBar from "../../../components/navBar";
 
-export default function AdminRelatoriosPage() {
-  const [searchTerm, setSearchTerm] = useState("")
-  const [filterStatus, setFilterStatus] = useState("todos")
+export default function RelatoriosPage() {
+  const router = useRouter();
+  const [isLoading, setIsLoading] = useState(true);
+  const [userName, setUserName] = useState("");
+
+  // Pegar o nome de usuário
+  useEffect(() => {
+    const username = localStorage.getItem('username');
+    if (username) {
+      setUserName(username)
+    }
+  }, [])
+
+  // Lidar com a Role 
+  useEffect(() => {
+    
+    const role = typeof window !== "undefined" ? localStorage.getItem("role") : null;
+    
+    if (!role) {
+      router.replace('/login')
+    } else if (role !== "secretary") {
+      router.push('/login')
+    } else {
+      setIsLoading(false)
+    }
+    
+  }, [router]);
+
+  if (isLoading) return <div>Carregando...</div>
+
 
   const relatorios = [
     {
@@ -124,48 +164,22 @@ export default function AdminRelatoriosPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center space-x-8">
-              <div className="w-8 h-8 bg-blue-500 rounded"></div>
-              <nav className="flex space-x-8">
-                <Link href="/" className="text-gray-600 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">
-                  Início
-                </Link>
-                <Link
-                  href="/atividades"
-                  className="text-gray-600 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium"
-                >
-                  Atividades
-                </Link>
-                <Link
-                  href="/relatorios"
-                  className="text-gray-600 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium"
-                >
-                  Relatórios
-                </Link>
-                <Link
-                  href="/admin/relatorios"
-                  className="text-blue-600 bg-blue-50 px-3 py-2 rounded-md text-sm font-medium"
-                >
-                  Admin
-                </Link>
-              </nav>
-            </div>
-            <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 bg-gray-300 rounded-full"></div>
-              <span className="text-sm font-medium text-gray-700">Admin</span>
-            </div>
-          </div>
-        </div>
-      </header>
+      <NavBar />
 
+      {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Page Title */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Relatórios</h1>
-          <p className="text-gray-600 mt-2">Gerencie e analise os relatórios dos alunos</p>
+        {/* Page Header */}
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Relatórios</h1>
+            <p className="text-gray-600 mt-1">Gerencie suas atividades complementares</p>
+          </div>
+          <Link href={'/secretaria/decisao'}>
+            <button className="flex items-center px-6 py-3 cursor-pointer bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-sm">
+              <Plus className="w-5 h-5 mr-2" />
+              Enviar novo relatório
+            </button>
+          </Link>
         </div>
 
         {/* Stats Cards */}

@@ -2,6 +2,7 @@
 
 import { ArrowLeft, FileText, Clock, Calendar, User } from "lucide-react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 export default function TelaDecisao() {
 const router = useRouter();
@@ -27,13 +28,15 @@ const historico = [
 return (
 <div className="min-h-screen bg-gray-50">
     <div className="bg-gray-100 border-b border-gray-200 p-4">
-    <button
-        onClick={() => router.back()}
-        className="flex items-center text-sm text-gray-600 hover:text-gray-800 transition-colors"
-    >
-        <ArrowLeft className="w-4 h-4 mr-1" />
-        Voltar para relatórios
-    </button>
+    <Link href='/sercretaria'>
+        <button
+            onClick={() => router.back()}
+            className="flex items-center cursor-pointer text-sm text-gray-600 hover:text-gray-800 transition-colors"
+        >
+            <ArrowLeft className="w-4 h-4 mr-1" />
+            Voltar para relatórios
+        </button>
+    </Link>
     </div>
 
     <div className="max-w-6xl mx-auto p-6">

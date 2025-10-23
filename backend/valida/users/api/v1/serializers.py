@@ -19,7 +19,11 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         return data
     
 class UserRegisterSerializer(serializers.ModelSerializer): 
+    
+    username = serializers.CharField(required=True)
+    email = serializers.EmailField(required=True)
     password = serializers.CharField(write_only=True)
+    role = serializers.ChoiceField(choices=User.ROLE_CHOICES, required= True)
 
     class Meta:
         model = User

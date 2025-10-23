@@ -1,23 +1,51 @@
+"use client";
+
 import { Home, BookOpen, FileText, Clock, Plus, User, Award, Bell, CheckCircle, AlertCircle, UserRound } from "lucide-react"
-import { useRouter } from "next/router"
-import { useEffect } from "react";
-import Header from "@/components/Header"
-import SolicitarAtividade from "../solicitar-atividade/page";
+import {Spinner} from "@heroui/react";
+
+
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import HeaderMain from "../../../components/navBar";
+import NavBar from "../../../components/navBar";
 
 export default function EstudantePagina() {
-  // const router = useRouter();
+  const router = useRouter();
+  const [isLoading, setIsLoading] = useState(true);
+  // const [userName, setUserName] = useState("");
 
+  // // Pegar o nome de usuário
   // useEffect(() => {
-  //   const role = localStorage.getItem("role")
-  //   if (!role) router.push('/login');
-  //   else if (role !== "student") router.push('/login');
-  // }, [router]);
+  //   const username = localStorage.getItem('username');
+  //   if (username) {
+  //     setUserName(username)
+  //   }
+  // }, [])
+  
+  // Lidar com a Role 
+  useEffect(() => {
+    
+    const role = typeof window !== "undefined" ? localStorage.getItem("role") : null;
+
+    if (!role) {
+      router.replace('/login')
+    } else if (role !== "student") {
+      router.push('/login')
+    } else {
+      setIsLoading(false)
+    }
+    
+  }, [router]);
+
+  if (isLoading) {
+    return <Spinner color="warning" label="Loading..." />;
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <Header />
+      <NavBar />
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -65,7 +93,7 @@ export default function EstudantePagina() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto mb-8">
           {/* Solicitar Nova Atividade */}
           <div className="bg-white rounded-lg border border-blue-200 hover:border-blue-300 hover:shadow-lg transition-all cursor-pointer p-6">
-            <Link href={'/solicitar-atividade'}>
+            <Link href='/solicitar-atividade'>
               <div className="text-center">
                 <div className="w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center mx-auto mb-4">
                   <div className="relative">
@@ -86,28 +114,30 @@ export default function EstudantePagina() {
 
           {/* Atividades em Andamento */}
           <div className="bg-white rounded-lg border border-blue-200 hover:border-blue-300 hover:shadow-lg transition-all cursor-pointer p-6">
-            <div className="text-center">
-              <div className="w-16 h-16 bg-blue-400 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Clock className="w-8 h-8 text-white" />
+            <Link href='/solicitar-atividade'>
+              <div className="text-center">
+                <div className="w-16 h-16 bg-blue-400 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Clock className="w-8 h-8 text-white" />
+                </div>
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">Atividades em andamento</h3>
+                <p className="text-gray-600 mb-4">Ver atividades em progresso</p>
+                <button className="w-full border cursor-pointer border-blue-400 text-blue-600 hover:bg-blue-50 py-2 px-4 rounded-md transition-colors">
+                  Ver Atividades
+                </button>
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">Atividades em andamento</h3>
-              <p className="text-gray-600 mb-4">Ver atividades em progresso</p>
-              <button className="w-full border border-blue-400 text-blue-600 hover:bg-blue-50 py-2 px-4 rounded-md transition-colors">
-                Ver Atividades
-              </button>
-            </div>
+            </Link>
           </div>
 
           {/* Relatórios */}
           <div className="bg-white rounded-lg border border-yellow-200 hover:border-yellow-300 hover:shadow-lg transition-all cursor-pointer p-6">
-          <Link href={'/relatorios'}>
+          <Link href='/relatorios'>
             <div className="text-center">
               <div className="w-16 h-16 bg-yellow-500 rounded-full flex items-center justify-center mx-auto mb-4">
                 <FileText className="w-8 h-8 text-white" />
               </div>
               <h3 className="text-xl font-semibold text-gray-900 mb-2">Relatórios</h3>
               <p className="text-gray-600 mb-4">Gerenciar relatórios</p>
-              <button className="w-full border border-yellow-500 text-yellow-600 hover:bg-yellow-50 py-2 px-4 rounded-md transition-colors">
+              <button className="w-full border border-yellow-500 text-yellow-600 cursor-pointer hover:bg-yellow-50 py-2 px-4 rounded-md transition-colors">
                 Ver Relatórios
               </button>
             </div>

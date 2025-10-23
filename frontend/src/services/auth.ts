@@ -9,20 +9,27 @@ export async function login(email: string, password: string) {
             password,
         });
 
-        const { access, refresh, role } = response.data;
+        const { access, refresh, role, username } = response.data;
 
         // Guarda tokens
         localStorage.setItem("access", access);
         localStorage.setItem("refresh", refresh);
         localStorage.setItem("role", role);
+        localStorage.setItem("username", username);
 
-        // Redireciona conforme o papel
-        if (role === "secretary") {
-            window.location.href = "/secretaria";
-        } else {
-            window.location.href = "/estudante";
-        }
+        return role;
     } catch (error) {
         alert("E-mail ou Senha inválidos")
     }
+}
+
+export function logout() {
+    // Limpar tudo do localStorege para realizar o logout
+    localStorage.removeItem("access");
+    localStorage.removeItem("refresh");
+    localStorage.removeItem("role");
+    localStorage.removeItem("username");
+
+    // Redireciona para login
+    window.location.href = '/login';
 }
