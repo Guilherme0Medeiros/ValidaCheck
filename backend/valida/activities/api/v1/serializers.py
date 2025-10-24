@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from activities.models import Categoria, Atividade
+from activities.models import Categoria, Atividade, Notificacao
 
 
 class CategoriaSerializer(serializers.ModelSerializer):
@@ -37,3 +37,12 @@ class AtividadeSerializer(serializers.ModelSerializer):
         user = self.context["request"].user
         validated_data["enviado_por"] = user
         return super().create(validated_data)
+
+
+class NotificacaoSerializer(serializers.ModelSerializer):
+    usuario = serializers.StringRelatedField(read_only=True)
+
+    class Meta:
+        model = Notificacao
+        fields = ["id", "usuario", "titulo", "mensagem", "tipo", "lida", "criada_em"]
+        read_only_fields = ["usuario", "criada_em"]
