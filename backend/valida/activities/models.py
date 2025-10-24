@@ -1,8 +1,10 @@
 from django.db import models
 from django.contrib.auth import get_user_model
+from django.utils import timezone
 
 User = get_user_model()
 
+#modelo de Categoria
 
 class Categoria(models.Model):
     nome = models.CharField("Nome", max_length=100, unique=True)
@@ -16,6 +18,8 @@ class Categoria(models.Model):
         verbose_name = "Categoria"
         verbose_name_plural = "Categorias"
 
+
+#modelo de Atividade
 
 class Atividade(models.Model):
     class Status(models.TextChoices):
@@ -79,3 +83,32 @@ class Atividade(models.Model):
     class Meta:
         verbose_name = "Atividade"
         verbose_name_plural = "Atividades"
+
+
+# modelo de Notificação
+
+class Notificacao(models.Model):
+    class Tipo(models.TextChoices):
+        NOVA_ATIVIDADE = "nova_atividade", "Nova atividade enviada"
+        COMPLEMENTACAO_SOLICITADA = "complementacao_solicitada", "Complementação solicitada"
+        DECISAO = "decisao", "Decisão sobre atividade"
+        META_ATINGIDA = "meta_atingida", "Meta de horas atingida"
+
+    usuario = models.ForeignKey(User, on_delete=models.CASCADE, related_name="notificacoes", verbose_name="Usuário")
+    titulo = models.CharField("Título", max_length=255)
+    mensagem = models.TextField("Mensagem")
+    tipo = models.CharField("Tipo", max_length=50, choices=Tipo.choices)
+    lida = models.BooleanField("Lida", default=False)
+    criada_em = models.DateTimeField("Criada em", default=timezone.now)
+
+    def marcar_como_lida(self):
+        self.lida = True
+        self.save(update_fields=["lida"])
+
+    def __str__(self):
+        return f"{self.usuario} - {self.titulo}"
+
+    class Meta:
+        verbose_name = "Notificação"
+        verbose_name_plural = "Notificações"
+        ordering = ["-criada_em"]

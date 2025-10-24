@@ -1,23 +1,17 @@
 from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter, OrderingFilter
 
-from activities.models import Categoria, Atividade
-from activities.api.v1.serializers import CategoriaSerializer, AtividadeSerializer
+from activities.models import Categoria, Atividade, Notificacao
+from activities.api.v1.serializers import (
+    CategoriaSerializer,
+    AtividadeSerializer,
+    NotificacaoSerializer,
+)
 from activities.api.v1.permissions import IsOwnerOrAdmin
 from activities.api.v1.filters import AtividadeFilter
-from users.api.v1.serializers import CustomTokenObtainPairSerializer
-
-
-class CustomTokenObtainPairView(TokenObtainPairView):
-    serializer_class = CustomTokenObtainPairSerializer
-
-
-class CustomTokenRefreshView(TokenRefreshView):
-    pass
 
 
 class CategoriaViewSet(viewsets.ModelViewSet):
@@ -33,7 +27,7 @@ class AtividadeViewSet(viewsets.ModelViewSet):
 
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_class = AtividadeFilter
-    search_fields = ["titulo", "descricao", "categoria__nome", "status"]
+    search_fields = ["titulo", "descricao", "categoria", "status"]
     ordering_fields = ["criado_em", "data_inicio", "data_fim"]
 
     def perform_create(self, serializer):
@@ -51,19 +45,36 @@ class AtividadeViewSet(viewsets.ModelViewSet):
     def aprovar(self, request, pk=None):
         atividade = self.get_object()
         horas_concedidas = request.data.get("horas_concedidas")
-        atividade.approve(hours_granted=horas_concedidas)
+        atividade.aprovar(horas_concedidas=horas_concedidas)
         return Response({"status": "Aprovado"}, status=status.HTTP_200_OK)
 
     @action(detail=True, methods=["post"], permission_classes=[IsOwnerOrAdmin])
     def indeferir(self, request, pk=None):
         atividade = self.get_object()
         motivo = request.data.get("motivo")
-        atividade.reject(reason=motivo)
+        atividade.indeferir(justificativa=motivo)
         return Response({"status": "Indeferido"}, status=status.HTTP_200_OK)
 
     @action(detail=True, methods=["post"], permission_classes=[IsOwnerOrAdmin])
     def solicitar_complemento(self, request, pk=None):
         atividade = self.get_object()
         checklist = request.data.get("checklist")
-        atividade.request_complement(checklist=checklist)
+        atividade.solicitar_complementacao(checklist=checklist)
         return Response({"status": "Complementação solicitada"}, status=status.HTTP_200_OK)
+
+
+class NotificacaoViewSet(viewsets.ModelViewSet):
+    queryset = Notificacao.objects.all()
+    serializer_class = NotificacaoSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return Notificacao.objects.filter(usuario=self.request.user)
+
+    def perform_create(self, serializer):
+        serializer.save(usuario=self.request.user)
+
+    @action(detail=False, methods=["post"], permission_classes=[permissions.IsAuthenticated])
+    def marcar_todas_como_lidas(self, request):
+        Notificacao.objects.filter(usuario=request.user, lida=False).update(lida=True)
+        return Response({"mensagem": "Todas as notificações foram marcadas como lidas."})
