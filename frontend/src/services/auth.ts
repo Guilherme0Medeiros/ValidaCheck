@@ -4,15 +4,16 @@ import api from "@/lib/axios";
 
 export async function login(email: string, password: string) {
     try {
-        const response = await api.post("token/", {
+        const response = await api.post("users/token/", {
             email,
             password,
         });
+        console.log("resposta da API",response.data)
 
         const { access, refresh, role, username } = response.data;
 
         // Guarda tokens
-        localStorage.setItem("access", access);
+        localStorage.setItem("access_token", access);
         localStorage.setItem("refresh", refresh);
         localStorage.setItem("role", role);
         localStorage.setItem("username", username);

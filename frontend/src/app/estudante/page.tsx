@@ -7,36 +7,27 @@ import {Spinner} from "@heroui/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import HeaderMain from "../../../components/navBar";
 import NavBar from "../../../components/navBar";
 
 export default function EstudantePagina() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
-  // const [userName, setUserName] = useState("");
-
-  // // Pegar o nome de usuário
-  // useEffect(() => {
-  //   const username = localStorage.getItem('username');
-  //   if (username) {
-  //     setUserName(username)
-  //   }
-  // }, [])
   
   // Lidar com a Role 
   useEffect(() => {
-    
-    const role = typeof window !== "undefined" ? localStorage.getItem("role") : null;
+      
+      const role = typeof window !== "undefined" ? localStorage.getItem("role") : null;
+      
+      if (!role) {
+        router.replace('/login')
+      } else if (role !== "student") {
+        router.push('/login')
+      } else {
+        setIsLoading(false)
+      }
+      
+    }, [router]);
 
-    if (!role) {
-      router.replace('/login')
-    } else if (role !== "student") {
-      router.push('/login')
-    } else {
-      setIsLoading(false)
-    }
-    
-  }, [router]);
 
   if (isLoading) {
     return <Spinner color="warning" label="Loading..." />;

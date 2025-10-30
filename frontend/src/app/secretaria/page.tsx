@@ -20,15 +20,6 @@ import NavBar from "../../../components/navBar";
 export default function RelatoriosPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
-  const [userName, setUserName] = useState("");
-
-  // Pegar o nome de usuário
-  useEffect(() => {
-    const username = localStorage.getItem('username');
-    if (username) {
-      setUserName(username)
-    }
-  }, [])
 
   // Lidar com a Role 
   useEffect(() => {
