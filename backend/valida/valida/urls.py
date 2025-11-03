@@ -5,13 +5,13 @@ from drf_spectacular.views import (
     SpectacularSwaggerView,
     SpectacularRedocView,
 )
-from users.api.v1.views import (
+from users.api.v1.viewsets import (
     CustomTokenObtainPairView,
     CustomTokenRefreshView,
     UserRegisterView,
+    UserViewSet,
 )
 from rest_framework import routers
-from users.api.v1.views import UserViewSet
 
 router = routers.DefaultRouter()
 router.register(r'users', UserViewSet, basename='user')
