@@ -1,14 +1,17 @@
 import axios from "axios"
 
-const api =  axios.create({
+const api = axios.create({
     baseURL: "http://localhost:8000/api/v1/"
 })
 
-//interceptador para adicionar o token automaticamente nas requisições
+// Interceptador para adicionar o token automaticamente nas requisições
 api.interceptors.request.use((config) => {
     const token = localStorage.getItem("access_token");
-    if (token) {
-        config.headers.Authorization = `Bearer ${token}`
+    const publicPaths = ['auth/register/', 'auth/login/'];  // Rotas públicas sem token
+    const isPublic = publicPaths.some(path => config.url?.includes(path));
+
+    if (token && !isPublic) {
+        config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
 });

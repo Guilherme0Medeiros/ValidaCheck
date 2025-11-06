@@ -3,7 +3,7 @@
 import Link from "next/link"
 import React, { useState } from "react"
 import { Eye, EyeOff, Mail, Lock, User, Github } from "lucide-react"
-import { login } from "@/services/auth"
+import api from "@/lib/axios"
 import { useRouter } from "next/navigation"
 
 export default function LoginPage() {
@@ -13,26 +13,37 @@ export default function LoginPage() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true)
+    setError(null);
+    setLoading(true);
 
     try {
-      const role = await login(email, password);
+      const response = await api.post("auth/login/", {
+        email,
+        password,
+      });
 
-      if (role === "secretary") {
+      // Salva os tokens e dados no localStorage
+      localStorage.setItem("access_token", response.data.access);
+      localStorage.setItem("refresh_token", response.data.refresh);
+      localStorage.setItem("role", response.data.role);
+      localStorage.setItem("username", response.data.username);
+
+      // Redireciona com base no role
+      if (response.data.role === "secretary") {
         router.push("/secretaria");
       } else {
-        router.push("/estudante")
+        router.push("/estudante");
       }
-    } catch (error) {
-      alert("E-mail ou senha inválidos");
+    } catch (err: any) {
+      setError("E-mail ou senha inválidos");
     } finally {
       setLoading(false);
     }
   }
-
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
@@ -48,7 +59,7 @@ export default function LoginPage() {
 
         {/* Formulário de login */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
-          <form className="space-y-6" action="#" method="POST" onSubmit={handleSubmit}>
+          <form className="space-y-6" onSubmit={handleSubmit}>
             {/* Campo Email */}
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
@@ -66,6 +77,7 @@ export default function LoginPage() {
                   required
                   className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500"
                   placeholder="seu@email.com"
+                  value={email}
                   onChange={(e) => setEmail(e.target.value)}
                 />
               </div>
@@ -88,6 +100,7 @@ export default function LoginPage() {
                   required
                   className="block w-full pl-10 pr-2 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500"
                   placeholder="Digite sua senha"
+                  value={password}
                   onChange={(e) => setPassword(e.target.value)}
                 />
                 {/* <button
@@ -127,10 +140,14 @@ export default function LoginPage() {
             {/* Botão Entrar */}
             <button
               type="submit"
-              className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm cursor-pointer text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+              disabled={loading}
+              className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm cursor-pointer text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
             >
               {loading ? "Loading..." : "Entrar"}
             </button>
+            {error && (
+              <p className="text-red-500 text-sm text-center">{error}</p>
+            )}
           </form>
 
           {/* Divisor */}
