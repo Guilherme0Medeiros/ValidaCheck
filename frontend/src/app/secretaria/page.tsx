@@ -11,7 +11,9 @@ import {
   Plus,
   Download,
   Calendar,
-} from "lucide-react"
+  Users,
+  Eye,
+} from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -21,23 +23,24 @@ export default function RelatoriosPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
 
-  // Lidar com a Role 
+  // Estados para busca e filtro
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterStatus, setFilterStatus] = useState("todos");
+
+  // Lidar com a Role
   useEffect(() => {
-    
     const role = typeof window !== "undefined" ? localStorage.getItem("role") : null;
-    
+
     if (!role) {
-      router.replace('/login')
+      router.replace("/login");
     } else if (role !== "secretary") {
-      router.push('/login')
+      router.push("/login");
     } else {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-    
   }, [router]);
 
-  if (isLoading) return <div>Carregando...</div>
-
+  if (isLoading) return <div className="flex items-center justify-center min-h-screen">Carregando...</div>;
 
   const relatorios = [
     {
@@ -85,72 +88,76 @@ export default function RelatoriosPage() {
       status: "aguardando_complementacao",
       dataEnvio: "01/04/2024",
     },
-  ]
+  ];
 
   const getStatusColor = (status: string) => {
     switch (status) {
       case "analisar":
-        return "bg-blue-100 text-blue-800 border-blue-200"
+        return "bg-blue-100 text-blue-800 border-blue-200";
       case "em_analise":
-        return "bg-yellow-100 text-yellow-800 border-yellow-200"
+        return "bg-yellow-100 text-yellow-800 border-yellow-200";
       case "aprovado":
-        return "bg-green-100 text-green-800 border-green-200"
+        return "bg-green-100 text-green-800 border-green-200";
       case "aguardando_complementacao":
-        return "bg-orange-100 text-orange-800 border-orange-200"
+        return "bg-orange-100 text-orange-800 border-orange-200";
       case "rejeitado":
-        return "bg-red-100 text-red-800 border-red-200"
+        return "bg-red-100 text-red-800 border-red-200";
       default:
-        return "bg-gray-100 text-gray-800 border-gray-200"
+        return "bg-gray-100 text-gray-800 border-gray-200";
     }
-  }
+  };
 
   const getStatusText = (status: string) => {
     switch (status) {
       case "analisar":
-        return "Analisar"
+        return "Analisar";
       case "em_analise":
-        return "Em análise"
+        return "Em análise";
       case "aprovado":
-        return "Aprovado"
+        return "Aprovado";
       case "aguardando_complementacao":
-        return "Aguardando complementação"
+        return "Aguardando complementação";
       case "rejeitado":
-        return "Rejeitado"
+        return "Rejeitado";
       default:
-        return status
+        return status;
     }
-  }
+  };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
       case "analisar":
-        return <Eye className="w-4 h-4" />
+        return <Eye className="w-4 h-4" />;
       case "em_analise":
-        return <Clock className="w-4 h-4" />
+        return <Clock className="w-4 h-4" />;
       case "aprovado":
-        return <CheckCircle className="w-4 h-4" />
+        return <CheckCircle className="w-4 h-4" />;
       case "aguardando_complementacao":
-        return <AlertCircle className="w-4 h-4" />
+        return <AlertCircle className="w-4 h-4" />;
       case "rejeitado":
-        return <XCircle className="w-4 h-4" />
+        return <XCircle className="w-4 h-4" />;
       default:
-        return null
+        return null;
     }
-  }
+  };
 
   const filteredRelatorios = relatorios.filter((relatorio) => {
     const matchesSearch =
       relatorio.aluno.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      relatorio.atividade.toLowerCase().includes(searchTerm.toLowerCase())
-    const matchesFilter = filterStatus === "todos" || relatorio.status === filterStatus
-    return matchesSearch && matchesFilter
-  })
+      relatorio.atividade.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesFilter = filterStatus === "todos" || relatorio.status === filterStatus;
+    return matchesSearch && matchesFilter;
+  });
 
   const stats = {
-    emAnalise: relatorios.filter((r) => r.status === "em_analise" || r.status === "analisar").length,
-    aguardandoComplementacao: relatorios.filter((r) => r.status === "aguardando_complementacao").length,
+    emAnalise: relatorios.filter(
+      (r) => r.status === "em_analise" || r.status === "analisar"
+    ).length,
+    aguardandoComplementacao: relatorios.filter(
+      (r) => r.status === "aguardando_complementacao"
+    ).length,
     aprovados: relatorios.filter((r) => r.status === "aprovado").length,
-  }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -165,7 +172,7 @@ export default function RelatoriosPage() {
             <h1 className="text-3xl font-bold text-gray-900">Relatórios</h1>
             <p className="text-gray-600 mt-1">Gerencie suas atividades complementares</p>
           </div>
-          <Link href={'/secretaria/decisao'}>
+          <Link href="/secretaria/decisao">
             <button className="flex items-center px-6 py-3 cursor-pointer bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-sm">
               <Plus className="w-5 h-5 mr-2" />
               Enviar novo relatório
@@ -190,7 +197,9 @@ export default function RelatoriosPage() {
           <div className="bg-white rounded-lg border border-gray-200 p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-3xl font-bold text-gray-900">{stats.aguardandoComplementacao}</p>
+                <p className="text-3xl font-bold text-gray-900">
+                  {stats.aguardandoComplementacao}
+                </p>
                 <p className="text-sm text-gray-600 mt-1">aguardando complementação</p>
               </div>
               <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
@@ -256,7 +265,9 @@ export default function RelatoriosPage() {
                   <th className="px-6 py-4 text-left text-sm font-medium text-gray-900">Aluno</th>
                   <th className="px-6 py-4 text-left text-sm font-medium text-gray-900">Atividade</th>
                   <th className="px-6 py-4 text-left text-sm font-medium text-gray-900">Categoria</th>
-                  <th className="px-6 py-4 text-left text-sm font-medium text-gray-900">Horas solicitadas</th>
+                  <th className="px-6 py-4 text-left text-sm font-medium text-gray-900">
+                    Horas solicitadas
+                  </th>
                   <th className="px-6 py-4 text-left text-sm font-medium text-gray-900">Status</th>
                   <th className="px-6 py-4 text-left text-sm font-medium text-gray-900">Ações</th>
                 </tr>
@@ -269,7 +280,9 @@ export default function RelatoriosPage() {
                         <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
                           <Users className="w-4 h-4 text-blue-600" />
                         </div>
-                        <span className="text-sm font-medium text-gray-900">{relatorio.aluno}</span>
+                        <span className="text-sm font-medium text-gray-900">
+                          {relatorio.aluno}
+                        </span>
                       </div>
                     </td>
                     <td className="px-6 py-4">
@@ -279,18 +292,23 @@ export default function RelatoriosPage() {
                       <span className="text-sm text-gray-600">{relatorio.categoria}</span>
                     </td>
                     <td className="px-6 py-4">
-                      <span className="text-sm font-medium text-gray-900">{relatorio.horasSolicitadas}</span>
+                      <span className="text-sm font-medium text-gray-900">
+                        {relatorio.horasSolicitadas}
+                      </span>
                     </td>
                     <td className="px-6 py-4">
                       <span
-                        className={`inline-flex items-center space-x-1 px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(relatorio.status)}`}
+                        className={`inline-flex items-center space-x-1 px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(
+                          relatorio.status
+                        )}`}
                       >
                         {getStatusIcon(relatorio.status)}
                         <span>{getStatusText(relatorio.status)}</span>
                       </span>
                     </td>
                     <td className="px-6 py-4">
-                      {(relatorio.status === "analisar" || relatorio.status === "em_analise") && (
+                      {(relatorio.status === "analisar" ||
+                        relatorio.status === "em_analise") && (
                         <Link
                           href={`/admin/decisao/${relatorio.id}`}
                           className="inline-flex items-center space-x-1 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
@@ -325,10 +343,12 @@ export default function RelatoriosPage() {
         {filteredRelatorios.length === 0 && (
           <div className="text-center py-12">
             <FileText className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-            <p className="text-gray-600">Nenhum relatório encontrado com os filtros aplicados.</p>
+            <p className="text-gray-600">
+              Nenhum relatório encontrado com os filtros aplicados.
+            </p>
           </div>
         )}
       </div>
     </div>
-  )
+  );
 }
