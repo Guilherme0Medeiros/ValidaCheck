@@ -5,26 +5,12 @@ from drf_spectacular.views import (
     SpectacularSwaggerView,
     SpectacularRedocView,
 )
-from users.api.v1.viewsets import (
-    CustomTokenObtainPairView,
-    CustomTokenRefreshView,
-    UserRegisterView,
-    UserViewSet,
-)
-from rest_framework import routers
-
-router = routers.DefaultRouter()
-router.register(r'users', UserViewSet, basename='user')
 
 urlpatterns = [
     path("admin/", admin.site.urls),
 
-    path("api/v1/", include("activities.api.v1.router")),
-    path("api/v1/", include(router.urls)),
-
-    path("api/v1/auth/register/", UserRegisterView.as_view(), name="register"),
-    path("api/v1/auth/login/", CustomTokenObtainPairView.as_view(), name="token_obtain_pair"),
-    path("api/v1/auth/refresh/", CustomTokenRefreshView.as_view(), name="token_refresh"),
+    path("api/v1/users/", include("users.api.v1.router")),
+    path("api/v1/activities/", include("activities.api.v1.router")),
 
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
     path("api/docs/", SpectacularSwaggerView.as_view(url_name="schema"), name="swagger-ui"),
