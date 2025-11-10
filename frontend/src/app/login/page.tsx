@@ -21,7 +21,7 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      const response = await api.post("auth/login/", {
+      const response = await api.post("users/token/", {
         email,
         password,
       });
