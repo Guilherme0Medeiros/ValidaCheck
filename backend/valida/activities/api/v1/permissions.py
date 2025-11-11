@@ -20,7 +20,7 @@ class IsStudent(permissions.BasePermission):
     """
 
     def has_permission(self, request, view):
-        return request.user.id_authenticated and request.user.role == 'student'
+        return request.user.is_authenticated and request.user.role == 'student'
     
 class IsSecretary(permissions.BasePermission):
     """
