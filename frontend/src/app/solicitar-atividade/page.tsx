@@ -2,16 +2,9 @@
 
 import type React from "react"
 import Header from "@/components/Header"
-import { useState } from "react"
-import {
-  Calendar,
-  Upload,
-  FileText,
-  Clock,
-  MapPin,
-  Tag,
-  User,
-} from "lucide-react"
+import { useState, useEffect } from "react"
+import { Calendar, Upload, FileText, Clock, MapPin, Tag, User } from "lucide-react"
+import api from "@/lib/axios"  
 
 export default function SolicitarAtividade() {
   const [formData, setFormData] = useState({
@@ -27,11 +20,24 @@ export default function SolicitarAtividade() {
   })
 
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([])
+  const [categorias, setCategorias] = useState<{ id: number; nome: string }[]>([])
+
+  useEffect(() => {
+    api
+      .get("activities/categorias/")
+      .then((res) => {
+        console.log("Resposta da API para categorias:", res.data);  
+        const data = Array.isArray(res.data) ? res.data : res.data.results || [];
+        setCategorias(data);
+      })
+      .catch((err) => {
+        console.error("Erro ao carregar categorias:", err);
+        setCategorias([]);  // para array vazio em caso de erro
+      })
+  }, [])
 
   const handleInputChange = (
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-    >
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target
     setFormData((prev) => ({ ...prev, [name]: value }))
@@ -43,10 +49,47 @@ export default function SolicitarAtividade() {
     }
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    console.log("Form submitted:", formData)
-    console.log("Files:", uploadedFiles)
+
+    const data = new FormData()
+    data.append("categoria", formData.categoria) 
+    data.append("titulo", formData.titulo)
+    data.append("local", formData.local)
+    data.append("data_inicio", formData.dataInicio)
+    data.append("data_fim", formData.dataTermino)
+    data.append("vinculo", formData.vinculo)
+    data.append("horas_solicitadas", formData.horasSolicitadas)
+    data.append("observacoes", formData.observacoes)
+    data.append("descricao", formData.descricao)
+    data.append("status", "Enviado") 
+
+    uploadedFiles.forEach((file) => {
+      data.append("arquivos", file) // Assume que o serializer aceita múltiplos arquivos em 'arquivos'
+    })
+
+    try {
+      const res = await api.post("activities/atividades/", data, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      })
+      console.log("Atividade enviada com sucesso:", res.data)
+      setFormData({
+        categoria: "",
+        titulo: "",
+        local: "",
+        dataInicio: "",
+        dataTermino: "",
+        vinculo: "",
+        horasSolicitadas: "",
+        observacoes: "",
+        descricao: "",
+      })
+      setUploadedFiles([])
+    } catch (err) {
+      console.error("Erro ao enviar atividade:", err)
+    }
   }
 
   return (
@@ -92,11 +135,11 @@ export default function SolicitarAtividade() {
                   required
                 >
                   <option value="">Selecione</option>
-                  <option value="pesquisa">Pesquisa</option>
-                  <option value="extensao">Extensão</option>
-                  <option value="monitoria">Monitoria</option>
-                  <option value="ensino">Ensino</option>
-                  <option value="evento">Evento</option>
+                  {Array.isArray(categorias) && categorias.map((cat) => (
+                    <option key={cat.id} value={cat.id}>
+                      {cat.nome}
+                    </option>
+                  ))}
                 </select>
               </div>
 
