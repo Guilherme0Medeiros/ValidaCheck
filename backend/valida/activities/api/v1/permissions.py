@@ -12,7 +12,7 @@ class IsOwnerOrAdmin(permissions.BasePermission):
             return True
 
         # Usuário comum só pode ver/editar suas próprias atividades
-        return obj.submitted_by == request.user
+        return obj.enviado_por == request.user
 
 class IsStudent(permissions.BasePermission):
     """

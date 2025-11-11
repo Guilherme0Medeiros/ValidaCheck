@@ -227,7 +227,7 @@ export default function AtividadesPage() {
                     </td>
                     <td className="px-6 py-4">
                       <Link
-                        href={`/estudante/atividade/${atividade.id}`}
+                        href={`/atividades/${atividade.id}`}
                         className="inline-flex items-center space-x-1 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
                       >
                         <FileText className="w-4 h-4" />

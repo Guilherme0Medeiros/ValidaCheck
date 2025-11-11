@@ -118,7 +118,7 @@ export default function EstudantePagina() {
 
           {/* Atividades em Andamento */}
           <div className="bg-white rounded-lg border border-blue-200 hover:border-blue-300 hover:shadow-lg transition-all cursor-pointer p-6">
-            <Link href="/solicitar-atividade">
+            <Link href="/atividades">
               <div className="text-center">
                 <div className="w-16 h-16 bg-blue-400 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Clock className="w-8 h-8 text-white" />
