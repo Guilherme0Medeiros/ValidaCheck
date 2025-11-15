@@ -65,7 +65,7 @@ export default function SolicitarAtividade() {
     data.append("status", "Enviado") 
 
     uploadedFiles.forEach((file) => {
-      data.append("arquivos", file) // Assume que o serializer aceita múltiplos arquivos em 'arquivos'
+      data.append("novos_arquivos", file) // Assume que o serializer aceita múltiplos arquivos em 'arquivos'
     })
 
     try {
