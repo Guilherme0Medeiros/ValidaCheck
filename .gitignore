@@ -66,6 +66,9 @@ coverage.*
 # Django migrations cache
 *.log
 
+# Pasta de uploads de usuário (MÍDIA)
+backend/valida/media/
+
 # =====================
 # GERAL
 # =====================
