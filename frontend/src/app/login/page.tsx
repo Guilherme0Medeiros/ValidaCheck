@@ -34,7 +34,7 @@ export default function LoginPage() {
 
       // Redireciona com base no role
       if (response.data.role === "secretary") {
-        router.push("/secretaria");
+        router.push("/admin/relatorios");
       } else {
         router.push("/estudante");
       }
