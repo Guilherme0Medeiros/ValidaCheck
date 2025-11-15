@@ -15,13 +15,13 @@ import {
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import api from "@/lib/axios";
-import NavBar from "../../../../components/navBar"; // Caminho corrigido
+import NavBar from "../../../../components/navBar"; 
 
 export default function AdminRelatoriosPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
-  const [activities, setActivities] = useState<any[]>([]); // Estado para atividades da API
-  const [categories, setCategories] = useState<any[]>([]); // Estado para categorias da API
+  const [activities, setActivities] = useState<any[]>([]); 
+  const [categories, setCategories] = useState<any[]>([]); 
 
   // Estados para busca e filtro
   const [searchTerm, setSearchTerm] = useState("");
@@ -44,7 +44,6 @@ export default function AdminRelatoriosPage() {
 
   // Buscar dados da API
   useEffect(() => {
-    // Só busca dados se não estiver carregando (ou seja, se a role já foi verificada)
     if (!isLoading) {
       async function fetchData() {
         try {
@@ -62,16 +61,14 @@ export default function AdminRelatoriosPage() {
           );
         } catch (error) {
           console.error("Error fetching data:", error);
-          // Adicionar tratamento de erro (ex: mostrar toast)
+        
         }
       }
 
       fetchData();
     }
-  }, [isLoading]); // Depende do isLoading para rodar após a verificação de role
+  }, [isLoading]); 
 
-  // ----- Funções de Status (copiadas de secretaria/page.tsx) -----
-  // Usam os status reais do backend
   const getStatusColor = (status: string) => {
     switch (status) {
       case "Enviado":
@@ -134,7 +131,6 @@ export default function AdminRelatoriosPage() {
         return null;
     }
   };
-  // ----- Fim das Funções de Status -----
 
   if (isLoading) {
     return (
@@ -144,20 +140,18 @@ export default function AdminRelatoriosPage() {
     );
   }
 
-  // Transforma os dados da API para o formato que a tabela espera
   const relatorios = activities.map((atividade) => ({
     id: atividade.id,
-    aluno: atividade.enviado_por || "Aluno desconhecido", // 'enviado_por' vem do serializer
+    aluno: atividade.enviado_por || "Aluno desconhecido", 
     atividade: atividade.titulo,
     categoria:
       categories.find((c) => c.id === atividade.categoria)?.nome ||
       "Desconhecida",
     horasSolicitadas: atividade.horas_solicitadas,
-    status: atividade.status, // Status real
+    status: atividade.status, 
     dataEnvio: new Date(atividade.criado_em).toLocaleDateString("pt-BR"),
   }));
 
-  // Filtra os dados reais
   const filteredRelatorios = relatorios.filter((relatorio) => {
     const matchesSearch =
       relatorio.aluno.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -167,7 +161,6 @@ export default function AdminRelatoriosPage() {
     return matchesSearch && matchesFilter;
   });
 
-  // Calcula estatísticas com dados reais
   const stats = {
     emAnalise: activities.filter(
       (r) => r.status === "Enviado" || r.status === "Em análise"
@@ -197,7 +190,6 @@ export default function AdminRelatoriosPage() {
           </p>
         </div>
 
-        {/* Stats Cards (agora com dados reais) */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <div className="bg-white rounded-lg border border-gray-200 p-6">
             <div className="flex items-center justify-between">
@@ -246,7 +238,6 @@ export default function AdminRelatoriosPage() {
           </div>
         </div>
 
-        {/* Filters and Search */}
         <div className="bg-white rounded-lg border border-gray-200 p-6 mb-6">
           <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
             <div className="flex flex-col sm:flex-row gap-4">
@@ -288,7 +279,6 @@ export default function AdminRelatoriosPage() {
           </div>
         </div>
 
-        {/* Reports Table (agora com dados reais) */}
         <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full">
@@ -353,7 +343,6 @@ export default function AdminRelatoriosPage() {
                       </span>
                     </td>
                     <td className="px-6 py-4">
-                      {/* Lógica de Ações com status reais */}
                       {(relatorio.status === "Enviado" ||
                         relatorio.status === "Em análise") && (
                         <Link
@@ -387,7 +376,6 @@ export default function AdminRelatoriosPage() {
                           <span>Indeferido</span>
                         </span>
                       )}
-                      {/* ADIÇÃO DA LÓGICA PARA RASCUNHO: */}
                       {relatorio.status === "Rascunho" && (
                         <span className="inline-flex items-center space-x-1 px-4 py-2 bg-gray-100 text-gray-600 text-sm font-medium rounded-lg">
                           (N/A)
