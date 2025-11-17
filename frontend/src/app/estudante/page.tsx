@@ -18,27 +18,40 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import NavBar from "../../../components/navBar";
-import useNotificacoes from "@/hooks/useNotificacoes"; // 👈 importa o hook
+import useNotificacoes from "@/hooks/useNotificacoes"; 
 
 export default function EstudantePagina() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
-  const { notificacoes, loading } = useNotificacoes(); // 👈 usa o hook
+  const [userName, setUserName] = useState("Aluno(a)"); 
+  const { notificacoes, loading } = useNotificacoes(); 
 
-  // Lidar com a Role
+  // Lidar com a Role e buscar o nome do usuário
   useEffect(() => {
-    const role = typeof window !== "undefined" ? localStorage.getItem("role") : null;
+    const role =
+      typeof window !== "undefined" ? localStorage.getItem("role") : null;
+    const username =
+      typeof window !== "undefined" ? localStorage.getItem("username") : null;
+
     if (!role) {
       router.replace("/login");
     } else if (role !== "student") {
       router.push("/login");
     } else {
+      // Se é estudante, define o nome e para de carregar
+      if (username) {
+        setUserName(username);
+      }
       setIsLoading(false);
     }
   }, [router]);
 
   if (isLoading) {
-    return <Spinner color="warning" label="Loading..." />;
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Spinner color="warning" label="Loading..." />
+      </div>
+    );
   }
 
   return (
@@ -48,16 +61,19 @@ export default function EstudantePagina() {
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Welcome Section */}
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">Olá, João!</h1>
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">
+            Olá, {userName}!
+          </h1>
           <p className="text-xl text-gray-600">O que deseja fazer hoje?</p>
         </div>
 
         {/* Progress Overview */}
         <div className="mb-8 bg-white rounded-lg border border-gray-200 p-6">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-gray-900">Seu Progresso</h2>
+            <h2 className="text-lg font-semibold text-gray-900">
+              Seu Progresso
+            </h2>
             <Award className="w-5 h-5 text-yellow-500" />
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -67,7 +83,10 @@ export default function EstudantePagina() {
                 <span>72 de 80h</span>
               </div>
               <div className="w-full bg-gray-200 rounded-full h-3">
-                <div className="bg-blue-500 h-3 rounded-full" style={{ width: "90%" }}></div>
+                <div
+                  className="bg-blue-500 h-3 rounded-full"
+                  style={{ width: "90%" }}
+                ></div>
               </div>
               <p className="text-xs text-gray-500 mt-1">
                 Faltam apenas 8 horas para completar!
@@ -183,20 +202,24 @@ export default function EstudantePagina() {
           {/* notificações dinâmicas */}
           <div className="bg-white rounded-lg border border-gray-200 p-6">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-gray-900">Notificações</h3>
+              <h3 className="text-lg font-semibold text-gray-900">
+                Notificações
+              </h3>
               <Bell className="w-5 h-5 text-gray-400" />
             </div>
 
             {loading ? (
-              <p className="text-gray-500 text-sm">Carregando notificações...</p>
+              <p className="text-gray-500 text-sm">
+                Carregando notificações...
+              </p>
             ) : notificacoes.length === 0 ? (
               <p className="text-gray-500 text-sm">
                 Nenhuma notificação recente.
               </p>
             ) : (
               <div className="space-y-4">
-                {notificacoes.map((n) => {
-                  const tipoCores = {
+                {notificacoes.map((n: any) => { // Adicionado 'any' para 'n'
+                  const tipoCores: Record<string, string> = { // Definido tipo
                     nova_atividade: "bg-blue-50 border-l-4 border-blue-500",
                     complementacao_solicitada:
                       "bg-yellow-50 border-l-4 border-yellow-500",
@@ -204,7 +227,7 @@ export default function EstudantePagina() {
                     meta_atingida: "bg-purple-50 border-l-4 border-purple-500",
                   };
 
-                  const tipoIcone = {
+                  const tipoIcone: Record<string, React.ReactNode> = { // Definido tipo
                     nova_atividade: (
                       <Clock className="w-5 h-5 text-blue-500" />
                     ),
@@ -212,18 +235,25 @@ export default function EstudantePagina() {
                       <AlertCircle className="w-5 h-5 text-yellow-500" />
                     ),
                     decisao: <CheckCircle className="w-5 h-5 text-green-500" />,
-                    meta_atingida: <Award className="w-5 h-5 text-purple-500" />,
+                    meta_atingida: (
+                      <Award className="w-5 h-5 text-purple-500" />
+                    ),
                   };
 
                   return (
                     <div
                       key={n.id}
-                      className={`flex items-start space-x-3 p-3 rounded-lg ${tipoCores[n.tipo] || "bg-gray-50"
-                        }`}
+                      className={`flex items-start space-x-3 p-3 rounded-lg ${
+                        tipoCores[n.tipo] || "bg-gray-50"
+                      }`}
                     >
-                      {tipoIcone[n.tipo] || <Bell className="w-5 h-5 text-gray-500" />}
+                      {tipoIcone[n.tipo] || (
+                        <Bell className="w-5 h-5 text-gray-500" />
+                      )}
                       <div className="flex-1">
-                        <p className="text-sm font-medium text-gray-900">{n.titulo}</p>
+                        <p className="text-sm font-medium text-gray-900">
+                          {n.titulo}
+                        </p>
                         <p className="text-xs text-gray-600">{n.mensagem}</p>
                         <span className="text-xs text-gray-500">
                           {new Date(n.criada_em).toLocaleString("pt-BR")}
