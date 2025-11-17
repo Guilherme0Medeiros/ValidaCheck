@@ -29,7 +29,7 @@ export  default function NavBar() {
               <div className="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center">
                 <BookOpen className="w-6 h-6 text-white" />
               </div>
-              <span className="ml-3 text-xl font-semibold text-gray-900">EscolaApp</span>
+              <span className="ml-3 text-xl font-semibold text-gray-900">Valida Check</span>
             </div>
 
             {/* Navigation */}
@@ -40,7 +40,7 @@ export  default function NavBar() {
                   Início
                 </button>
               </Link>
-              <Link href='/relatorios'>
+              <Link href='/atividades'>
                 <button className="flex items-center cursor-pointer px-4 py-2 text-blue-500 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors">
                   <BookOpen className="w-4 h-4 mr-2" />
                   Atividades

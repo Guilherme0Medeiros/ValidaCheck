@@ -10,7 +10,7 @@ from activities.api.v1.serializers import (
     CategoriaSerializer, AtividadeSerializer, NotificacaoSerializer,
     ProgressoSerializer, DecisaoSerializer, AtividadeHistoricoSerializer, AtividadeComentarioSerializer
 )
-from activities.api.v1.permissions import IsOwnerOrAdmin, IsStudent, IsSecretary
+from activities.api.v1.permissions import IsOwnerOrAdmin, IsStudent, IsSecretary, IsStudentOrSecretary
 from activities.api.v1.filters import AtividadeFilter
 
 
@@ -28,7 +28,10 @@ class CategoriaViewSet(viewsets.ModelViewSet):
 class AtividadeViewSet(viewsets.ModelViewSet):
     queryset = Atividade.objects.all().order_by("-criado_em")
     serializer_class = AtividadeSerializer
-    permission_classes = [permissions.IsAuthenticated, IsOwnerOrAdmin]
+    permission_classes = [permissions.IsAuthenticated, IsOwnerOrAdmin] 
+
+    # CORREÇÃO: Desabilita a paginação
+    pagination_class = None
 
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_class = AtividadeFilter
@@ -36,10 +39,13 @@ class AtividadeViewSet(viewsets.ModelViewSet):
     ordering_fields = ["criado_em", "data_inicio", "data_fim"]
 
     def get_permissions(self):
-        if self.action in ["create", "list_me", "progresso", "timeline"]:
+        if self.action in ["create", "list_me", "progresso"]:
             return [IsStudent()]
         if self.action in ["review", "decisao", "reclassificar"]:
             return [IsSecretary()]
+        if self.action == "timeline":
+            # Permite que Alunos (para ver o seu) e Secretários (para decidir) vejam o histórico
+            return [IsStudentOrSecretary()] 
         if self.action == "retrieve":
             return [IsOwnerOrAdmin()]
         return super().get_permissions()
@@ -51,8 +57,10 @@ class AtividadeViewSet(viewsets.ModelViewSet):
         user = self.request.user
         if not user.is_authenticated:
             return Atividade.objects.none()
+        # Se for staff ou secretaria, mostra tudo
         if user.is_staff or getattr(user, "role", None) == "secretary":
             return Atividade.objects.all()
+        # Senão, mostra apenas os do próprio usuário
         return Atividade.objects.filter(enviado_por=user)
 
     @action(detail=False, methods=["get"], url_path="me")
@@ -80,8 +88,10 @@ class AtividadeViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=["get"], url_path="timeline")
     def timeline(self, request, pk=None):
-        historico = AtividadeHistorico.objects.filter(atividade_id=pk)
-        comentarios = AtividadeComentario.objects.filter(atividade_id=pk)
+        # Esta ação agora é protegida pela permissão IsStudentOrSecretary
+        atividade = self.get_object() # Adiciona verificação de permissão de objeto
+        historico = AtividadeHistorico.objects.filter(atividade=atividade)
+        comentarios = AtividadeComentario.objects.filter(atividade=atividade)
         return Response({
             "historico": AtividadeHistoricoSerializer(historico, many=True).data,
             "comentarios": AtividadeComentarioSerializer(comentarios, many=True).data,
@@ -104,7 +114,6 @@ class AtividadeViewSet(viewsets.ModelViewSet):
             justificativa = serializer.validated_data.get("justificativa", "")
             checklist = serializer.validated_data.get("checklist")
 
-            # Aplica decisão via métodos do modelo
             if novo_status in ["Aprovado", "Aprovado com ajuste"]:
                 atividade.aprovar(aprovado_por=request.user, horas_concedidas=horas_concedidas)
             elif novo_status == "Indeferido":
@@ -139,7 +148,7 @@ class AtividadeViewSet(viewsets.ModelViewSet):
                 )
                 return Response({"success": "Categoria reclassificada"})
             except Categoria.DoesNotExist:
-                return Response({"error": "Categoria não encontrada"}, status=status.HTTP_404_NOT_FOUND)
+                return Response({"error": "Categoria não encontrada"}, status=status.HTTP_4404_NOT_FOUND)
         return Response({"error": "Categoria requerida"}, status=status.HTTP_400_BAD_REQUEST)
 
 

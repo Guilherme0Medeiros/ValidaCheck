@@ -1,33 +1,41 @@
 "use client";
 
-import { Home, BookOpen, FileText, Clock, Plus, User, Award, Bell, CheckCircle, AlertCircle, UserRound } from "lucide-react"
-import {Spinner} from "@heroui/react";
-
-
+import {
+  Home,
+  BookOpen,
+  FileText,
+  Clock,
+  Plus,
+  User,
+  Award,
+  Bell,
+  CheckCircle,
+  AlertCircle,
+  UserRound,
+} from "lucide-react";
+import { Spinner } from "@heroui/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import NavBar from "../../../components/navBar";
+import useNotificacoes from "@/hooks/useNotificacoes"; // 👈 importa o hook
 
 export default function EstudantePagina() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
-  
-  // Lidar com a Role 
-  useEffect(() => {
-      
-      const role = typeof window !== "undefined" ? localStorage.getItem("role") : null;
-      
-      if (!role) {
-        router.replace('/login')
-      } else if (role !== "student") {
-        router.push('/login')
-      } else {
-        setIsLoading(false)
-      }
-      
-    }, [router]);
+  const { notificacoes, loading } = useNotificacoes(); // 👈 usa o hook
 
+  // Lidar com a Role
+  useEffect(() => {
+    const role = typeof window !== "undefined" ? localStorage.getItem("role") : null;
+    if (!role) {
+      router.replace("/login");
+    } else if (role !== "student") {
+      router.push("/login");
+    } else {
+      setIsLoading(false);
+    }
+  }, [router]);
 
   if (isLoading) {
     return <Spinner color="warning" label="Loading..." />;
@@ -61,7 +69,9 @@ export default function EstudantePagina() {
               <div className="w-full bg-gray-200 rounded-full h-3">
                 <div className="bg-blue-500 h-3 rounded-full" style={{ width: "90%" }}></div>
               </div>
-              <p className="text-xs text-gray-500 mt-1">Faltam apenas 8 horas para completar!</p>
+              <p className="text-xs text-gray-500 mt-1">
+                Faltam apenas 8 horas para completar!
+              </p>
             </div>
             <div className="flex items-center space-x-4">
               <div className="text-center">
@@ -84,7 +94,7 @@ export default function EstudantePagina() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto mb-8">
           {/* Solicitar Nova Atividade */}
           <div className="bg-white rounded-lg border border-blue-200 hover:border-blue-300 hover:shadow-lg transition-all cursor-pointer p-6">
-            <Link href='/solicitar-atividade'>
+            <Link href="/solicitar-atividade">
               <div className="text-center">
                 <div className="w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center mx-auto mb-4">
                   <div className="relative">
@@ -92,25 +102,30 @@ export default function EstudantePagina() {
                     <Plus className="w-4 h-4 text-white absolute -bottom-1 -right-1 bg-blue-600 rounded-full p-0.5" />
                   </div>
                 </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">Solicitar nova atividade</h3>
-                <p className="text-gray-600 mb-4">Pedir aprovação de nova atividade</p>
-                
-                  <button className="w-full bg-blue-500 cursor-pointer hover:bg-blue-600 text-white py-2 px-4 rounded-md transition-colors">
-                    Nova Solicitação
-                  </button>
-                
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                  Solicitar nova atividade
+                </h3>
+                <p className="text-gray-600 mb-4">
+                  Pedir aprovação de nova atividade
+                </p>
+
+                <button className="w-full bg-blue-500 cursor-pointer hover:bg-blue-600 text-white py-2 px-4 rounded-md transition-colors">
+                  Nova Solicitação
+                </button>
               </div>
             </Link>
           </div>
 
           {/* Atividades em Andamento */}
           <div className="bg-white rounded-lg border border-blue-200 hover:border-blue-300 hover:shadow-lg transition-all cursor-pointer p-6">
-            <Link href='/solicitar-atividade'>
+            <Link href="/atividades">
               <div className="text-center">
                 <div className="w-16 h-16 bg-blue-400 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Clock className="w-8 h-8 text-white" />
                 </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">Atividades em andamento</h3>
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                  Atividades em andamento
+                </h3>
                 <p className="text-gray-600 mb-4">Ver atividades em progresso</p>
                 <button className="w-full border cursor-pointer border-blue-400 text-blue-600 hover:bg-blue-50 py-2 px-4 rounded-md transition-colors">
                   Ver Atividades
@@ -121,89 +136,107 @@ export default function EstudantePagina() {
 
           {/* Relatórios */}
           <div className="bg-white rounded-lg border border-yellow-200 hover:border-yellow-300 hover:shadow-lg transition-all cursor-pointer p-6">
-          <Link href='/relatorios'>
-            <div className="text-center">
-              <div className="w-16 h-16 bg-yellow-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                <FileText className="w-8 h-8 text-white" />
+            <Link href="/relatorios">
+              <div className="text-center">
+                <div className="w-16 h-16 bg-yellow-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <FileText className="w-8 h-8 text-white" />
+                </div>
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                  Relatórios
+                </h3>
+                <p className="text-gray-600 mb-4">Gerenciar relatórios</p>
+                <button className="w-full border border-yellow-500 text-yellow-600 cursor-pointer hover:bg-yellow-50 py-2 px-4 rounded-md transition-colors">
+                  Ver Relatórios
+                </button>
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">Relatórios</h3>
-              <p className="text-gray-600 mb-4">Gerenciar relatórios</p>
-              <button className="w-full border border-yellow-500 text-yellow-600 cursor-pointer hover:bg-yellow-50 py-2 px-4 rounded-md transition-colors">
-                Ver Relatórios
-              </button>
-            </div>
-          </Link>
+            </Link>
           </div>
         </div>
 
-        {/* atividades e notificao */}
+        {/* atividades e notificacao */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
           {/* atividades recentes */}
           <div className="bg-white rounded-lg border border-gray-200 p-6">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-gray-900">Atividades Recentes</h3>
+              <h3 className="text-lg font-semibold text-gray-900">
+                Atividades Recentes
+              </h3>
               <Clock className="w-5 h-5 text-gray-400" />
             </div>
             <div className="space-y-4">
+              {/* Exemplo estático (mantido só pra layout) */}
               <div className="flex items-center space-x-3 p-3 bg-green-50 rounded-lg">
                 <CheckCircle className="w-5 h-5 text-green-500" />
                 <div className="flex-1">
-                  <p className="text-sm font-medium text-gray-900">Curso de Capacitação</p>
-                  <p className="text-xs text-gray-600">Aprovado - 10 horas concedidas</p>
+                  <p className="text-sm font-medium text-gray-900">
+                    Curso de Capacitação
+                  </p>
+                  <p className="text-xs text-gray-600">
+                    Aprovado - 10 horas concedidas
+                  </p>
                 </div>
                 <span className="text-xs text-gray-500">2 dias atrás</span>
-              </div>
-              <div className="flex items-center space-x-3 p-3 bg-yellow-50 rounded-lg">
-                <AlertCircle className="w-5 h-5 text-yellow-500" />
-                <div className="flex-1">
-                  <p className="text-sm font-medium text-gray-900">Projeto de Extensão</p>
-                  <p className="text-xs text-gray-600">Em análise - 40 horas solicitadas</p>
-                </div>
-                <span className="text-xs text-gray-500">5 dias atrás</span>
-              </div>
-              <div className="flex items-center space-x-3 p-3 bg-blue-50 rounded-lg">
-                <Clock className="w-5 h-5 text-blue-500" />
-                <div className="flex-1">
-                  <p className="text-sm font-medium text-gray-900">Monitoria</p>
-                  <p className="text-xs text-gray-600">Aguardando complementação</p>
-                </div>
-                <span className="text-xs text-gray-500">1 semana atrás</span>
               </div>
             </div>
           </div>
 
-          {/* notificacoes */}
+          {/* notificações dinâmicas */}
           <div className="bg-white rounded-lg border border-gray-200 p-6">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold text-gray-900">Notificações</h3>
               <Bell className="w-5 h-5 text-gray-400" />
             </div>
-            <div className="space-y-4">
-              <div className="flex items-start space-x-3 p-3 bg-blue-50 rounded-lg">
-                <div className="w-2 h-2 bg-blue-500 rounded-full mt-2"></div>
-                <div className="flex-1">
-                  <p className="text-sm font-medium text-gray-900">Nova solicitação aprovada</p>
-                  <p className="text-xs text-gray-600">Seu curso de capacitação foi aprovado com 10 horas</p>
-                  <span className="text-xs text-gray-500">Hoje, 14:30</span>
-                </div>
+
+            {loading ? (
+              <p className="text-gray-500 text-sm">Carregando notificações...</p>
+            ) : notificacoes.length === 0 ? (
+              <p className="text-gray-500 text-sm">
+                Nenhuma notificação recente.
+              </p>
+            ) : (
+              <div className="space-y-4">
+                {notificacoes.map((n) => {
+                  const tipoCores = {
+                    nova_atividade: "bg-blue-50 border-l-4 border-blue-500",
+                    complementacao_solicitada:
+                      "bg-yellow-50 border-l-4 border-yellow-500",
+                    decisao: "bg-green-50 border-l-4 border-green-500",
+                    meta_atingida: "bg-purple-50 border-l-4 border-purple-500",
+                  };
+
+                  const tipoIcone = {
+                    nova_atividade: (
+                      <Clock className="w-5 h-5 text-blue-500" />
+                    ),
+                    complementacao_solicitada: (
+                      <AlertCircle className="w-5 h-5 text-yellow-500" />
+                    ),
+                    decisao: <CheckCircle className="w-5 h-5 text-green-500" />,
+                    meta_atingida: <Award className="w-5 h-5 text-purple-500" />,
+                  };
+
+                  return (
+                    <div
+                      key={n.id}
+                      className={`flex items-start space-x-3 p-3 rounded-lg ${tipoCores[n.tipo] || "bg-gray-50"
+                        }`}
+                    >
+                      {tipoIcone[n.tipo] || <Bell className="w-5 h-5 text-gray-500" />}
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-gray-900">{n.titulo}</p>
+                        <p className="text-xs text-gray-600">{n.mensagem}</p>
+                        <span className="text-xs text-gray-500">
+                          {new Date(n.criada_em).toLocaleString("pt-BR")}
+                        </span>
+                      </div>
+                      {!n.lida && (
+                        <div className="w-2 h-2 bg-blue-500 rounded-full mt-2"></div>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
-              <div className="flex items-start space-x-3 p-3 bg-yellow-50 rounded-lg">
-                <div className="w-2 h-2 bg-yellow-500 rounded-full mt-2"></div>
-                <div className="flex-1">
-                  <p className="text-sm font-medium text-gray-900">Complementação solicitada</p>
-                  <p className="text-xs text-gray-600">Adicione mais documentos ao projeto de monitoria</p>
-                  <span className="text-xs text-gray-500">Ontem, 16:45</span>
-                </div>
-              </div>
-              <div className="flex items-start space-x-3 p-3 bg-gray-50 rounded-lg">
-                <div className="w-2 h-2 bg-gray-400 rounded-full mt-2"></div>
-                <div className="flex-1">
-                  <p className="text-sm font-medium text-gray-900">Lembrete: Prazo próximo</p>
-                  <p className="text-xs text-gray-600">Você tem 15 dias para completar suas horas</p>
-                  <span className="text-xs text-gray-500">2 dias atrás</span>
-                </div>
-              </div>
-            </div>
+            )}
           </div>
         </div>
 
@@ -228,5 +261,5 @@ export default function EstudantePagina() {
         </div>
       </main>
     </div>
-  )
+  );
 }

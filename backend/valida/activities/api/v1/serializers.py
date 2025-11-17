@@ -34,7 +34,7 @@ class AtividadeSerializer(serializers.ModelSerializer):
             "justificativa", "enviado_por", "status", "criado_em", "atualizado_em",
             "arquivos", "novos_arquivos"
         ]
-        read_only_fields = ["enviado_por", "criado_em", "atualizado_em", "horas_concedidas", "status"]
+        read_only_fields = ["enviado_por", "criado_em", "atualizado_em", "horas_concedidas"]
 
     def create(self, validated_data):
         arquivos = validated_data.pop("novos_arquivos", [])

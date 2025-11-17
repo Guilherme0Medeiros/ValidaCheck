@@ -18,10 +18,13 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import NavBar from "../../../components/navBar";
+import api from "@/lib/axios"; 
 
 export default function RelatoriosPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
+  const [activities, setActivities] = useState([]);
+  const [categories, setCategories] = useState([]);
 
   // Estados para busca e filtro
   const [searchTerm, setSearchTerm] = useState("");
@@ -40,68 +43,53 @@ export default function RelatoriosPage() {
     }
   }, [router]);
 
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const [actsRes, catsRes] = await Promise.all([
+          api.get("activities/atividades/"),
+          api.get("activities/categorias/"),
+        ]);
+        setActivities(Array.isArray(actsRes.data) ? actsRes.data : actsRes.data.results || []);
+        setCategories(Array.isArray(catsRes.data) ? catsRes.data : catsRes.data.results || []);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    }
+
+    if (!isLoading) {
+      fetchData();
+    }
+  }, [isLoading]);
+
   if (isLoading) return <div className="flex items-center justify-center min-h-screen">Carregando...</div>;
 
-  const relatorios = [
-    {
-      id: 1,
-      aluno: "Ana Souza",
-      atividade: "Participação em congresso",
-      categoria: "Pesquisa",
-      horasSolicitadas: 16,
-      status: "analisar",
-      dataEnvio: "10/04/2024",
-    },
-    {
-      id: 2,
-      aluno: "Lucas Lima",
-      atividade: "Projeto de extensão comunitária",
-      categoria: "Extensão",
-      horasSolicitadas: 40,
-      status: "em_analise",
-      dataEnvio: "08/04/2024",
-    },
-    {
-      id: 3,
-      aluno: "Mariana Santos",
-      atividade: "Atividades de monitoria",
-      categoria: "Monitoria",
-      horasSolicitadas: 20,
-      status: "analisar",
-      dataEnvio: "05/04/2024",
-    },
-    {
-      id: 4,
-      aluno: "Pedro Almeida",
-      atividade: "Curso de capacitação",
-      categoria: "Ensino",
-      horasSolicitadas: 10,
-      status: "aprovado",
-      dataEnvio: "02/04/2024",
-    },
-    {
-      id: 5,
-      aluno: "Julia Costa",
-      atividade: "Seminário de pesquisa",
-      categoria: "Pesquisa",
-      horasSolicitadas: 8,
-      status: "aguardando_complementacao",
-      dataEnvio: "01/04/2024",
-    },
-  ];
+  const relatorios = activities.map((atividade) => ({
+    id: atividade.id,
+    aluno: atividade.enviado_por,
+    atividade: atividade.titulo,
+    categoria: categories.find((c) => c.id === atividade.categoria)?.nome || "Desconhecida",
+    horasSolicitadas: atividade.horas_solicitadas,
+    status: atividade.status,
+    dataEnvio: new Date(atividade.criado_em).toLocaleDateString("pt-BR"),
+  }));
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "analisar":
+      case "Enviado":
         return "bg-blue-100 text-blue-800 border-blue-200";
-      case "em_analise":
+      case "Em análise":
         return "bg-yellow-100 text-yellow-800 border-yellow-200";
-      case "aprovado":
+      case "Aprovado":
+      case "Aprovado com ajuste":
+      case "Computado":
         return "bg-green-100 text-green-800 border-green-200";
-      case "aguardando_complementacao":
+      case "Complementação solicitada":
         return "bg-orange-100 text-orange-800 border-orange-200";
-      case "rejeitado":
+      case "Indeferido":
         return "bg-red-100 text-red-800 border-red-200";
+      case "Rascunho":
+        return "bg-gray-100 text-gray-800 border-gray-200";
       default:
         return "bg-gray-100 text-gray-800 border-gray-200";
     }
@@ -109,16 +97,22 @@ export default function RelatoriosPage() {
 
   const getStatusText = (status: string) => {
     switch (status) {
-      case "analisar":
+      case "Enviado":
         return "Analisar";
-      case "em_analise":
+      case "Em análise":
         return "Em análise";
-      case "aprovado":
+      case "Aprovado":
         return "Aprovado";
-      case "aguardando_complementacao":
+      case "Aprovado com ajuste":
+        return "Aprovado com ajuste";
+      case "Complementação solicitada":
         return "Aguardando complementação";
-      case "rejeitado":
-        return "Rejeitado";
+      case "Indeferido":
+        return "Indeferido";
+      case "Computado":
+        return "Computado";
+      case "Rascunho":
+        return "Rascunho";
       default:
         return status;
     }
@@ -126,15 +120,17 @@ export default function RelatoriosPage() {
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case "analisar":
+      case "Enviado":
         return <Eye className="w-4 h-4" />;
-      case "em_analise":
+      case "Em análise":
         return <Clock className="w-4 h-4" />;
-      case "aprovado":
+      case "Aprovado":
+      case "Aprovado com ajuste":
+      case "Computado":
         return <CheckCircle className="w-4 h-4" />;
-      case "aguardando_complementacao":
+      case "Complementação solicitada":
         return <AlertCircle className="w-4 h-4" />;
-      case "rejeitado":
+      case "Indeferido":
         return <XCircle className="w-4 h-4" />;
       default:
         return null;
@@ -150,13 +146,18 @@ export default function RelatoriosPage() {
   });
 
   const stats = {
-    emAnalise: relatorios.filter(
-      (r) => r.status === "em_analise" || r.status === "analisar"
+    emAnalise: activities.filter(
+      (r) => r.status === "Enviado" || r.status === "Em análise"
     ).length,
-    aguardandoComplementacao: relatorios.filter(
-      (r) => r.status === "aguardando_complementacao"
+    aguardandoComplementacao: activities.filter(
+      (r) => r.status === "Complementação solicitada"
     ).length,
-    aprovados: relatorios.filter((r) => r.status === "aprovado").length,
+    aprovados: activities.filter(
+      (r) =>
+        r.status === "Aprovado" ||
+        r.status === "Aprovado com ajuste" ||
+        r.status === "Computado"
+    ).length,
   };
 
   return (
@@ -236,10 +237,14 @@ export default function RelatoriosPage() {
                 className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               >
                 <option value="todos">Todos os status</option>
-                <option value="analisar">Para analisar</option>
-                <option value="em_analise">Em análise</option>
-                <option value="aprovado">Aprovados</option>
-                <option value="aguardando_complementacao">Aguardando complementação</option>
+                <option value="Enviado">Para analisar</option>
+                <option value="Em análise">Em análise</option>
+                <option value="Aprovado">Aprovados</option>
+                <option value="Aprovado com ajuste">Aprovado com ajuste</option>
+                <option value="Complementação solicitada">Aguardando complementação</option>
+                <option value="Indeferido">Indeferido</option>
+                <option value="Computado">Computado</option>
+                <option value="Rascunho">Rascunho</option>
               </select>
             </div>
 
@@ -307,30 +312,38 @@ export default function RelatoriosPage() {
                       </span>
                     </td>
                     <td className="px-6 py-4">
-                      {(relatorio.status === "analisar" ||
-                        relatorio.status === "em_analise") && (
+                      {(relatorio.status === "Enviado" ||
+                        relatorio.status === "Em análise") && (
                         <Link
-                          href={`/admin/decisao/${relatorio.id}`}
+                          href={`/secretaria/decisao/${relatorio.id}`} 
                           className="inline-flex items-center space-x-1 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
                         >
                           <Eye className="w-4 h-4" />
                           <span>Analisar</span>
                         </Link>
                       )}
-                      {relatorio.status === "aprovado" && (
+                      {(relatorio.status === "Aprovado" ||
+                        relatorio.status === "Aprovado com ajuste" ||
+                        relatorio.status === "Computado") && (
                         <span className="inline-flex items-center space-x-1 px-4 py-2 bg-green-100 text-green-800 text-sm font-medium rounded-lg">
                           <CheckCircle className="w-4 h-4" />
                           <span>Aprovado</span>
                         </span>
                       )}
-                      {relatorio.status === "aguardando_complementacao" && (
+                      {relatorio.status === "Complementação solicitada" && (
                         <Link
-                          href={`/admin/decisao/${relatorio.id}`}
+                          href={`/secretaria/decisao/${relatorio.id}`}
                           className="inline-flex items-center space-x-1 px-4 py-2 bg-orange-100 text-orange-800 text-sm font-medium rounded-lg hover:bg-orange-200 transition-colors"
                         >
                           <AlertCircle className="w-4 h-4" />
                           <span>Revisar</span>
                         </Link>
+                      )}
+                      {relatorio.status === "Indeferido" && (
+                        <span className="inline-flex items-center space-x-1 px-4 py-2 bg-red-100 text-red-800 text-sm font-medium rounded-lg">
+                          <XCircle className="w-4 h-4" />
+                          <span>Indeferido</span>
+                        </span>
                       )}
                     </td>
                   </tr>
