@@ -25,16 +25,20 @@ class AtividadeSerializer(serializers.ModelSerializer):
         write_only=True,
         required=False
     )
+    categoria_nome = serializers.CharField(source='categoria.nome', read_only=True)
 
     class Meta:
         model = Atividade
         fields = [
-            "id", "titulo", "categoria", "descricao", "local", "data_inicio", "data_fim",
+            "id", "titulo", "categoria", "categoria_nome", "descricao", "local", "data_inicio", "data_fim",
             "horas_solicitadas", "horas_concedidas", "vinculo", "contato", "observacoes",
-            "justificativa", "enviado_por", "status", "criado_em", "atualizado_em",
+            "justificativa", "checklist", "enviado_por", "status", "criado_em", "atualizado_em",
             "arquivos", "novos_arquivos"
         ]
-        read_only_fields = ["enviado_por", "criado_em", "atualizado_em", "horas_concedidas"]
+        read_only_fields = [
+            "enviado_por", "criado_em", "atualizado_em", "horas_concedidas", 
+            "categoria_nome", "justificativa", "checklist"
+        ]
 
     def create(self, validated_data):
         arquivos = validated_data.pop("novos_arquivos", [])
@@ -44,6 +48,17 @@ class AtividadeSerializer(serializers.ModelSerializer):
         for arquivo in arquivos:
             AtividadeArquivo.objects.create(atividade=atividade, arquivo=arquivo)
         return atividade
+
+    def update(self, instance, validated_data):
+        arquivos = validated_data.pop("novos_arquivos", [])
+        for arquivo in arquivos:
+            AtividadeArquivo.objects.create(atividade=instance, arquivo=arquivo)
+        if instance.status == 'Complementação solicitada' and validated_data.get('status') == 'Enviado':
+            instance.status = 'Enviado'
+            # Limpa o checklist de complementação antigo
+            instance.checklist = None
+            instance.justificativa = None # Limpa justificativa de indeferimento anterior, se houver
+        return super().update(instance, validated_data)
 
 
 class AtividadeHistoricoSerializer(serializers.ModelSerializer):
