@@ -39,7 +39,11 @@ export default function LoginPage() {
         router.push("/estudante");
       }
     } catch (err: any) {
-      setError("E-mail ou senha inválidos");
+      if (err.response?.data?.email) {
+        setError(err.response.data.email);
+      } else {
+        setError("E-mail ou senha inválidos");
+      }
     } finally {
       setLoading(false);
     }
