@@ -2,7 +2,9 @@ from rest_framework import viewsets, permissions, generics, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.decorators import action
+from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+from rest_framework_simplejwt.tokens import RefreshToken
 from users.utils.email import send_verification_email
 from django.shortcuts import redirect
 from users.utils.tokens import decode_email_verification_token
@@ -94,3 +96,16 @@ class VerifyEmailView(APIView):
 
         except Exception:
             return redirect(f"{settings.FRONTEND_URL.rstrip('/')}/verificar-email?status=error")
+        
+class SocialLoginJWTView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        refresh = RefreshToken.for_user(user)
+        return Response({
+            "access": str(refresh.access_token),
+            "refresh": str(refresh),
+            "username": user.username,
+            "role": user.role
+        })

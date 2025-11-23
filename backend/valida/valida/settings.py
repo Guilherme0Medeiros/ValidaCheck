@@ -27,12 +27,21 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "django.contrib.sites",
     "rest_framework",
     "rest_framework_simplejwt",
     "drf_spectacular",
     "drf_spectacular_sidecar",
     "corsheaders",
-    "users"
+    'social_django',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    "users",
+
+    #POVIDERS
+    'allauth.socialaccount.providers.github',
+    'allauth.socialaccount.providers.google',
 ] + LOCAL_APPS
 
 MIDDLEWARE = [
@@ -44,9 +53,35 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "allauth.account.middleware.AccountMiddleware",
 ]
 
 ROOT_URLCONF = "valida.urls"
+
+AUTHENTICATION_BACKENDS = (
+    'django.contrib.auth.backends.ModelBackend',
+    'allauth.account.auth_backends.AuthenticationBackend',
+    'social_core.backends.google.GoogleOAuth2',
+)
+
+SOCIALACCOUNT_PROVIDERS = {
+    'google': {
+        'SCOPE': [
+            'profile',
+            'email',
+        ],
+        'AUTH_PARAMS': {
+            'access_type': 'online',
+        },
+        'OAUTH_PKCE_ENABLED': True,
+    }
+}
+
+SOCIALACCOUNT_PROVIDERS = {
+    'google': {
+        'FETCH_USERINFO' : True
+    }
+}
 
 TEMPLATES = [
     {
@@ -123,6 +158,7 @@ JWT_SECRET = env("JWT_SECRET")
 JWT_ALGORITHM = "HS256"
 EMAIL_VERIFICATION_TOKEN_EXP_MINUTES = 60 * 24 
 
+
 # ----------------------------------------------------
 # EMAIL - agora vindo do .env
 # ----------------------------------------------------
@@ -136,3 +172,6 @@ EMAIL_USE_TLS = env.bool("EMAIL_USE_TLS")
 EMAIL_HOST_USER = env("EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD")
 DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL")
+
+
+LOGIN_REDIRECT_URL = env("FRONTEND_URL") + "/estudante"

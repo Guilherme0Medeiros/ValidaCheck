@@ -6,7 +6,8 @@ from .viewsets import (
     CustomTokenObtainPairView, 
     CustomTokenRefreshView,
     UserRegisterView,
-    VerifyEmailView
+    VerifyEmailView,
+    SocialLoginJWTView,
 )
 
 router = DefaultRouter()
@@ -18,6 +19,7 @@ urlpatterns = [
     path('register/', UserRegisterView.as_view(), name='user_register'),
     path('verify-email/', VerifyEmailView.as_view(), name="verify-email"), 
     path("reset-password-confirm/", password_reset_confirm),
+    path("social-login-jwt/", SocialLoginJWTView.as_view()),
 ]
 
 urlpatterns += router.urls

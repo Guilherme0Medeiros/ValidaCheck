@@ -170,6 +170,7 @@ export default function LoginPage() {
           <div className="mt-6 grid grid-cols-2 gap-3">
             <button
               type="button"
+              onClick={() => window.location.href = "http://127.0.0.1:8000/accounts/google/login/"}
               className="w-full inline-flex justify-center items-center py-3 px-4 border border-gray-300 rounded-lg shadow-sm cursor-pointer bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
             >
               <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">

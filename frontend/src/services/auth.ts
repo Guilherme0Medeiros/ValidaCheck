@@ -34,3 +34,20 @@ export function logout() {
     // Redireciona para login
     window.location.href = '/login';
 }
+
+export async function socialLoginJWT() {
+  try {
+    const response = await api.get("users/social-login-jwt/");
+    const { access, refresh, username, role } = response.data;
+
+    localStorage.setItem("access_token", access);
+    localStorage.setItem("refresh_token", refresh);
+    localStorage.setItem("username", username);
+    localStorage.setItem("role", role);
+
+    return role;
+  } catch (error) {
+    console.error("Erro ao pegar JWT do social login:", error);
+    return null;
+  }
+}
