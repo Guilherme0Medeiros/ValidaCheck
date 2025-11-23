@@ -1,10 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
-from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-from rest_framework_simplejwt.tokens import RefreshToken
-from django.conf import settings
-from django.core.mail import send_mail
+from rest_framework import serializers
 
 User = get_user_model()
 
@@ -54,21 +51,6 @@ class UserRegisterSerializer(serializers.ModelSerializer):
             password=validated_data['password'],
             role=validated_data.get('role', 'student'),
             is_verified=False,
-        )
-
-        # Gerar token de confirmação
-        token = RefreshToken.for_user(user).access_token
-
-        # Montar URL do link
-        verify_url = f"{settings.FRONTEND_URL}/verify-email/?token={token}"
-
-        # Verificar e-mail
-        send_mail(
-            subject="Confirme seu e-mail - validaCheck",
-            message=f"Olá {user.username},\n\nClique no link abaixo para confirmar seu e-mail:\n{verify_url}\n\nObrigado!",
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            recipient_list=[user.email],
-            fail_silently=False,
         )
 
         return user
