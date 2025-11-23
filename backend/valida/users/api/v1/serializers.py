@@ -19,8 +19,7 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     def validate(self, attrs):
         data = super().validate(attrs)
 
-        if not self.user.is_verified:
-            raise serializers.ValidationError({"email": "E-mail não verificado. Verifique sua caixa de entrada, caso não connste nada verifique a caixa de span ou lixo eletronico."})
+        # REMOVIDO: verificação de e-mail
 
         data['id'] = self.user.id
         data['role'] = self.user.role
@@ -40,7 +39,6 @@ class UserRegisterSerializer(serializers.ModelSerializer):
         fields = ['id', 'username', 'email', 'password', 'role']
 
     def validate_password(self, value):
-        
         validate_password(value, user=None)
         return value
 
@@ -50,9 +48,8 @@ class UserRegisterSerializer(serializers.ModelSerializer):
             email=validated_data['email'],
             password=validated_data['password'],
             role=validated_data.get('role', 'student'),
-            is_verified=False,
+            is_verified=True,  # sempre começa verificado
         )
-
         return user
 
 
@@ -81,6 +78,5 @@ class ChangePasswordSerializer(serializers.Serializer):
         if attrs['new_password1'] != attrs['new_password2']:
             raise serializers.ValidationError({"new_password2": "As senhas não coincidem."})
 
-        
         validate_password(attrs['new_password1'], user=user)
         return attrs

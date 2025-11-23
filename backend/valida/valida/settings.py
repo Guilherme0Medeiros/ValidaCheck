@@ -3,18 +3,16 @@ from pathlib import Path
 from datetime import timedelta
 import environ
 
-# Inicializa o django-environ
 env = environ.Env()
 environ.Env.read_env(os.path.join(Path(__file__).resolve().parent.parent, ".env"))
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# SECRET_KEY agora vem do .env
 SECRET_KEY = env("SECRET_KEY")
-
 DEBUG = env.bool("DEBUG", default=True)
-
 ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=[])
+
+SITE_ID = 1
 
 LOCAL_APPS = [
     "activities",
@@ -33,15 +31,13 @@ INSTALLED_APPS = [
     "drf_spectacular",
     "drf_spectacular_sidecar",
     "corsheaders",
-    'social_django',
-    'allauth',
-    'allauth.account',
-    'allauth.socialaccount',
+    "social_django",
+    "allauth",
+    "allauth.account",
+    "allauth.socialaccount",
     "users",
-
-    #POVIDERS
-    'allauth.socialaccount.providers.github',
-    'allauth.socialaccount.providers.google',
+    "allauth.socialaccount.providers.github",
+    "allauth.socialaccount.providers.google",
 ] + LOCAL_APPS
 
 MIDDLEWARE = [
@@ -59,27 +55,16 @@ MIDDLEWARE = [
 ROOT_URLCONF = "valida.urls"
 
 AUTHENTICATION_BACKENDS = (
-    'django.contrib.auth.backends.ModelBackend',
-    'allauth.account.auth_backends.AuthenticationBackend',
-    'social_core.backends.google.GoogleOAuth2',
+    "django.contrib.auth.backends.ModelBackend",
+    "allauth.account.auth_backends.AuthenticationBackend",
+    "social_core.backends.google.GoogleOAuth2",
 )
 
 SOCIALACCOUNT_PROVIDERS = {
-    'google': {
-        'SCOPE': [
-            'profile',
-            'email',
-        ],
-        'AUTH_PARAMS': {
-            'access_type': 'online',
-        },
-        'OAUTH_PKCE_ENABLED': True,
-    }
-}
-
-SOCIALACCOUNT_PROVIDERS = {
-    'google': {
-        'FETCH_USERINFO' : True
+    "google": {
+        "SCOPE": ["profile", "email"],
+        "FETCH_USERINFO": True,
+        "OAUTH_PKCE_ENABLED": True,
     }
 }
 
@@ -99,8 +84,6 @@ TEMPLATES = [
     },
 ]
 
-TEMPLATE_DIRS = (os.path.join(BASE_DIR, "templates"),)
-
 WSGI_APPLICATION = "valida.wsgi.application"
 
 DATABASES = {
@@ -110,7 +93,7 @@ DATABASES = {
     }
 }
 
-AUTH_USER_MODEL = 'users.User'
+AUTH_USER_MODEL = "users.User"
 
 AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
@@ -124,7 +107,10 @@ TIME_ZONE = "UTC"
 USE_I18N = True
 USE_TZ = True
 
-STATIC_URL = "static/"
+STATIC_URL = "/static/"
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media"
+
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 REST_FRAMEWORK = {
@@ -152,19 +138,13 @@ SIMPLE_JWT = {
 
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
-SECURE_COOKIE = False
 
 JWT_SECRET = env("JWT_SECRET")
 JWT_ALGORITHM = "HS256"
-EMAIL_VERIFICATION_TOKEN_EXP_MINUTES = 60 * 24 
 
-
-# ----------------------------------------------------
-# EMAIL - agora vindo do .env
-# ----------------------------------------------------
 BACKEND_URL = env("BACKEND_URL")
-
 FRONTEND_URL = env("FRONTEND_URL")
+
 EMAIL_BACKEND = env("EMAIL_BACKEND", default="django.core.mail.backends.smtp.EmailBackend")
 EMAIL_HOST = env("EMAIL_HOST")
 EMAIL_PORT = env.int("EMAIL_PORT")
@@ -172,6 +152,5 @@ EMAIL_USE_TLS = env.bool("EMAIL_USE_TLS")
 EMAIL_HOST_USER = env("EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD")
 DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL")
-
 
 LOGIN_REDIRECT_URL = env("FRONTEND_URL") + "/estudante"

@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth import get_user_model
 from django.utils import timezone
+from django.core.exceptions import ValidationError
 
 User = get_user_model()
 
@@ -189,6 +190,7 @@ class Notificacao(models.Model):
         COMPLEMENTACAO_SOLICITADA = "complementacao_solicitada", "Complementação solicitada"
         DECISAO = "decisao", "Decisão sobre atividade"
         META_ATINGIDA = "meta_atingida", "Meta de horas atingida"
+        NOVO_RELATORIO = "novo_relatorio", "Novo relatório enviado"
 
     usuario = models.ForeignKey(User, on_delete=models.CASCADE, related_name="notificacoes", verbose_name="Usuário")
     titulo = models.CharField("Título", max_length=255)
@@ -208,3 +210,130 @@ class Notificacao(models.Model):
         verbose_name = "Notificação"
         verbose_name_plural = "Notificações"
         ordering = ["-criada_em"]
+
+
+
+class Relatorio(models.Model):
+    class Status(models.TextChoices):
+        ENVIADO = "Enviado", "Enviado"
+        EM_ANALISE = "Em análise", "Em análise"
+        COMPLEMENTACAO_SOLICITADA = "Complementação solicitada", "Complementação solicitada"
+        APROVADO = "Aprovado", "Aprovado"
+        APROVADO_AJUSTE = "Aprovado com ajuste", "Aprovado com ajuste"
+        INDEFERIDO = "Indeferido", "Indeferido"
+        COMPUTADO = "Computado", "Computado"
+
+    atividade = models.ForeignKey(
+        Atividade,
+        on_delete=models.PROTECT,
+        related_name="relatorios",
+        verbose_name="Atividade vinculada"
+    )
+    titulo = models.CharField("Título", max_length=255)
+    descricao = models.TextField("Descrição", blank=True, null=True)
+    arquivo = models.FileField("Arquivo", upload_to="relatorios/%Y/%m/")
+    enviado_por = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="relatorios",
+        verbose_name="Enviado por"
+    )
+    avaliado_por = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="relatorios_avaliados",
+        verbose_name="Avaliado por"
+    )
+    status = models.CharField(
+        "Status",
+        max_length=50,
+        choices=Status.choices,
+        default=Status.ENVIADO
+    )
+    criado_em = models.DateTimeField("Criado em", auto_now_add=True)
+    atualizado_em = models.DateTimeField("Atualizado em", auto_now=True)
+    justificativa = models.TextField("Justificativa (quando indeferido)", blank=True, null=True)
+    checklist = models.JSONField("Checklist de complementação", blank=True, null=True)
+
+    def clean(self):
+        # 1) Só pode enviar relatório para atividade Aprovada/Aprovada com ajuste
+        if self.atividade.status not in [
+            Atividade.Status.APROVADO,
+            Atividade.Status.APROVADO_AJUSTE,
+            Atividade.Status.COMPUTADO,
+        ]:
+            raise ValidationError("Relatórios só podem ser enviados para atividades aprovadas.")
+
+        # 2) O relatório precisa ser enviado pelo mesmo dono da atividade (a não ser que seja staff/secretaria; isso validamos no serializer/view)
+        if self.enviado_por_id and self.atividade.enviado_por_id and self.enviado_por_id != self.atividade.enviado_por_id:
+            raise ValidationError("Você só pode enviar relatório para atividades que são suas.")
+
+    # Histórico helper
+    def registrar_historico(self, usuario, status_novo, comentario=""):
+        RelatorioHistorico.objects.create(
+            relatorio=self,
+            status_anterior=self.status,
+            status_novo=status_novo,
+            usuario=usuario,
+            comentario=comentario,
+        )
+
+    # Ações de decisão
+    def aprovar(self, aprovado_por=None):
+        self.status = self.Status.APROVADO
+        self.avaliado_por = aprovado_por
+        self.save()
+        self.registrar_historico(aprovado_por, self.status, "Relatório aprovado")
+
+    def aprovar_com_ajuste(self, aprovado_por=None, comentario="Aprovado com ajuste"):
+        self.status = self.Status.APROVADO_AJUSTE
+        self.avaliado_por = aprovado_por
+        self.save()
+        self.registrar_historico(aprovado_por, self.status, comentario)
+
+    def indeferir(self, indeferido_por=None, justificativa=None):
+        self.status = self.Status.INDEFERIDO
+        if justificativa:
+            self.justificativa = justificativa
+        self.avaliado_por = indeferido_por
+        self.save()
+        self.registrar_historico(indeferido_por, self.status, "Relatório indeferido")
+
+    def solicitar_complementacao(self, solicitado_por=None, checklist=None):
+        self.status = self.Status.COMPLEMENTACAO_SOLICITADA
+        if checklist:
+            self.checklist = checklist
+        self.avaliado_por = solicitado_por
+        self.save()
+        self.registrar_historico(solicitado_por, self.status, "Complementação solicitada")
+
+    def __str__(self):
+        return f"Relatório: {self.titulo} — {self.atividade.titulo}"
+
+
+class RelatorioHistorico(models.Model):
+    relatorio = models.ForeignKey(Relatorio, on_delete=models.CASCADE, related_name='historico')
+    status_anterior = models.CharField("Status Anterior", max_length=50)
+    status_novo = models.CharField("Status Novo", max_length=50)
+    timestamp = models.DateTimeField("Timestamp", auto_now_add=True)
+    usuario = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    comentario = models.TextField("Comentário", blank=True)
+
+    class Meta:
+        verbose_name = "Histórico de Relatório"
+        verbose_name_plural = "Históricos de Relatórios"
+        ordering = ["-timestamp"]
+
+
+class RelatorioComentario(models.Model):
+    relatorio = models.ForeignKey(Relatorio, on_delete=models.CASCADE, related_name='comentarios')
+    usuario = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    mensagem = models.TextField("Mensagem")
+    timestamp = models.DateTimeField("Timestamp", auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Comentário de Relatório"
+        verbose_name_plural = "Comentários de Relatórios"
+        ordering = ["-timestamp"]
