@@ -258,7 +258,7 @@ class Relatorio(models.Model):
     checklist = models.JSONField("Checklist de complementação", blank=True, null=True)
 
     def clean(self):
-        # 1) Só pode enviar relatório para atividade Aprovada/Aprovada com ajuste
+        # só permite enviar relatório para atividades aprovadas
         if self.atividade.status not in [
             Atividade.Status.APROVADO,
             Atividade.Status.APROVADO_AJUSTE,
@@ -266,11 +266,11 @@ class Relatorio(models.Model):
         ]:
             raise ValidationError("Relatórios só podem ser enviados para atividades aprovadas.")
 
-        # 2) O relatório precisa ser enviado pelo mesmo dono da atividade (a não ser que seja staff/secretaria; isso validamos no serializer/view)
+        # dono da atividade = dono do relatório
         if self.enviado_por_id and self.atividade.enviado_por_id and self.enviado_por_id != self.atividade.enviado_por_id:
             raise ValidationError("Você só pode enviar relatório para atividades que são suas.")
 
-    # Histórico helper
+    # Registrar histórico
     def registrar_historico(self, usuario, status_novo, comentario=""):
         RelatorioHistorico.objects.create(
             relatorio=self,
@@ -280,34 +280,40 @@ class Relatorio(models.Model):
             comentario=comentario,
         )
 
-    # Ações de decisão
-    def aprovar(self, aprovado_por=None):
-        self.status = self.Status.APROVADO
-        self.avaliado_por = aprovado_por
-        self.save()
-        self.registrar_historico(aprovado_por, self.status, "Relatório aprovado")
+    # NOVO: método único para decisões
+    def tomar_decisao(self, usuario, novo_status, comentario="", justificativa="", checklist=None):
+        """
+        Aplica qualquer decisão do admin em um único método.
+        """
 
-    def aprovar_com_ajuste(self, aprovado_por=None, comentario="Aprovado com ajuste"):
-        self.status = self.Status.APROVADO_AJUSTE
-        self.avaliado_por = aprovado_por
-        self.save()
-        self.registrar_historico(aprovado_por, self.status, comentario)
+        if novo_status == self.Status.APROVADO:
+            self.status = self.Status.APROVADO
+            self.justificativa = None
+            self.checklist = None
 
-    def indeferir(self, indeferido_por=None, justificativa=None):
-        self.status = self.Status.INDEFERIDO
-        if justificativa:
+        elif novo_status == self.Status.APROVADO_AJUSTE:
+            self.status = self.Status.APROVADO_AJUSTE
+            self.justificativa = None
+            self.checklist = None
+
+        elif novo_status == self.Status.INDEFERIDO:
+            self.status = self.Status.INDEFERIDO
             self.justificativa = justificativa
-        self.avaliado_por = indeferido_por
-        self.save()
-        self.registrar_historico(indeferido_por, self.status, "Relatório indeferido")
+            self.checklist = None
 
-    def solicitar_complementacao(self, solicitado_por=None, checklist=None):
-        self.status = self.Status.COMPLEMENTACAO_SOLICITADA
-        if checklist:
+        elif novo_status == self.Status.COMPLEMENTACAO_SOLICITADA:
+            self.status = self.Status.COMPLEMENTACAO_SOLICITADA
+            self.justificativa = None
             self.checklist = checklist
-        self.avaliado_por = solicitado_por
+
+        else:
+            raise ValidationError("Status inválido para decisão.")
+
+        self.avaliado_por = usuario
         self.save()
-        self.registrar_historico(solicitado_por, self.status, "Complementação solicitada")
+
+        # registrar histórico
+        self.registrar_historico(usuario, self.status, comentario or justificativa)
 
     def __str__(self):
         return f"Relatório: {self.titulo} — {self.atividade.titulo}"
