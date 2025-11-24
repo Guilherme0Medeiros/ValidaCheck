@@ -109,7 +109,7 @@ export default function DecisaoPage() {
         ...payload,
       });
       alert("Decisão registrada com sucesso!");
-      router.push("/admin/relatorios"); // Volta para a lista
+      router.push("/admin/atividades"); // Volta para a lista
     } catch (err: any) {
       console.error("Erro ao enviar decisão:", err);
       alert(
@@ -185,7 +185,7 @@ export default function DecisaoPage() {
       <div className="flex flex-col items-center justify-center min-h-screen">
         <p className="text-red-600 text-lg mb-4">{errorMessage}</p>
         <Link
-          href="/admin/relatorios"
+          href="/admin/atividades"
           className="inline-flex items-center space-x-2 text-blue-600 hover:text-blue-800 transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
@@ -212,7 +212,7 @@ export default function DecisaoPage() {
         {/* Back Button */}
         <div className="mb-6">
           <Link
-            href="/admin/relatorios"
+            href="/admin/atividades"
             className="inline-flex items-center space-x-2 text-gray-600 hover:text-gray-900 transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
