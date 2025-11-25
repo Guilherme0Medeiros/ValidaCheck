@@ -119,17 +119,16 @@ O projeto está dividido em duas pastas principais: `backend` e `frontend`.
 ### Testes Backend
 O projeto utiliza `pytest` para testes unitários e `behave` para testes de comportamento (BDD).
 
-Para correr os testes unitários:
-```bash
-```
-
 Para correr os testes de comportamento (features):
 
 ```bash
 cd backend/valida
+behave
 ```
 
-📂 Estrutura do Projeto
+## 📂 Estrutura do Projeto
+
+```text
 ValidaCheck/
 ├── backend/
 │   └── valida/
