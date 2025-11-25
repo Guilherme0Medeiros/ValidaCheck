@@ -3,10 +3,13 @@
 import type React from "react"
 import { useState, useEffect } from "react"
 import { Calendar, Upload, FileText, Clock, MapPin, Tag, User } from "lucide-react"
+import { useRouter } from "next/navigation"
 import api from "@/lib/axios"  
 import NavBar from "../../../components/navBar"
 
 export default function SolicitarAtividade() {
+  const router = useRouter()
+
   const [formData, setFormData] = useState({
     categoria: "",
     titulo: "",
@@ -21,18 +24,19 @@ export default function SolicitarAtividade() {
 
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([])
   const [categorias, setCategorias] = useState<{ id: number; nome: string }[]>([])
+  const [successMessage, setSuccessMessage] = useState<string | null>(null)
 
   useEffect(() => {
     api
       .get("activities/categorias/")
       .then((res) => {
-        console.log("Resposta da API para categorias:", res.data);  
-        const data = Array.isArray(res.data) ? res.data : res.data.results || [];
-        setCategorias(data);
+        console.log("Resposta da API para categorias:", res.data)
+        const data = Array.isArray(res.data) ? res.data : res.data.results || []
+        setCategorias(data)
       })
       .catch((err) => {
-        console.error("Erro ao carregar categorias:", err);
-        setCategorias([]);  // para array vazio em caso de erro
+        console.error("Erro ao carregar categorias:", err)
+        setCategorias([]) // array vazio em caso de erro
       })
   }, [])
 
@@ -53,7 +57,7 @@ export default function SolicitarAtividade() {
     e.preventDefault()
 
     const data = new FormData()
-    data.append("categoria", formData.categoria) 
+    data.append("categoria", formData.categoria)
     data.append("titulo", formData.titulo)
     data.append("local", formData.local)
     data.append("data_inicio", formData.dataInicio)
@@ -62,10 +66,10 @@ export default function SolicitarAtividade() {
     data.append("horas_solicitadas", formData.horasSolicitadas)
     data.append("observacoes", formData.observacoes)
     data.append("descricao", formData.descricao)
-    data.append("status", "Enviado") 
+    data.append("status", "Enviado")
 
     uploadedFiles.forEach((file) => {
-      data.append("novos_arquivos", file) // Assume que o serializer aceita múltiplos arquivos em 'arquivos'
+      data.append("novos_arquivos", file)
     })
 
     try {
@@ -75,6 +79,7 @@ export default function SolicitarAtividade() {
         },
       })
       console.log("Atividade enviada com sucesso:", res.data)
+
       setFormData({
         categoria: "",
         titulo: "",
@@ -87,6 +92,12 @@ export default function SolicitarAtividade() {
         descricao: "",
       })
       setUploadedFiles([])
+
+      // Aviso de sucesso + redirecionamento
+      setSuccessMessage("Atividade enviada com sucesso! Você será redirecionado para a página de atividades.")
+      setTimeout(() => {
+        router.push("/atividades")
+      }, 2000) // 2 segundos
     } catch (err) {
       console.error("Erro ao enviar atividade:", err)
     }
@@ -108,6 +119,13 @@ export default function SolicitarAtividade() {
             Preencha os dados da atividade que deseja solicitar para análise.
           </p>
         </div>
+
+        {/* Aviso de sucesso */}
+        {successMessage && (
+          <div className="mb-6 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800">
+            {successMessage}
+          </div>
+        )}
 
         {/* Formulário */}
         <form
@@ -135,11 +153,12 @@ export default function SolicitarAtividade() {
                   required
                 >
                   <option value="">Selecione</option>
-                  {Array.isArray(categorias) && categorias.map((cat) => (
-                    <option key={cat.id} value={cat.id}>
-                      {cat.nome}
-                    </option>
-                  ))}
+                  {Array.isArray(categorias) &&
+                    categorias.map((cat) => (
+                      <option key={cat.id} value={cat.id}>
+                        {cat.nome}
+                      </option>
+                    ))}
                 </select>
               </div>
 

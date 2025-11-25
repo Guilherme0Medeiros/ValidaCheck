@@ -16,6 +16,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import api from "@/lib/axios";
 
+/* 👉 IMPORT DA NAVBAR */
+import NavBarSecretary from "../../../../components/navBarSecretary";
 
 export default function AdminRelatoriosPage() {
   const router = useRouter();
@@ -93,8 +95,7 @@ export default function AdminRelatoriosPage() {
       r.atividade_titulo?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       r.enviado_por_nome?.toLowerCase().includes(searchTerm.toLowerCase());
 
-    const filtro =
-      filterStatus === "todos" || r.status === filterStatus;
+    const filtro = filterStatus === "todos" || r.status === filterStatus;
 
     return busca && filtro;
   });
@@ -118,6 +119,10 @@ export default function AdminRelatoriosPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      
+      {/* 👉 NAVBAR AQUI */}
+      <NavBarSecretary />
+
       <div className="max-w-7xl mx-auto px-6 py-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">
           Relatórios Enviados
@@ -128,86 +133,147 @@ export default function AdminRelatoriosPage() {
 
         {/* Stats */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-          <div className="bg-white p-6 rounded-lg border">
-            <p className="text-3xl font-bold">{stats.emAnalise}</p>
-            <p className="text-gray-600">Em análise</p>
+          {/* Em análise */}
+          <div className="bg-white rounded-lg border border-gray-200 p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-3xl font-bold text-gray-900">
+                  {stats.emAnalise}
+                </p>
+                <p className="text-sm text-gray-600 mt-1">Em análise</p>
+              </div>
+              <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                <FileText className="w-6 h-6 text-blue-600" />
+              </div>
+            </div>
           </div>
 
-          <div className="bg-white p-6 rounded-lg border">
-            <p className="text-3xl font-bold">{stats.complementacao}</p>
-            <p className="text-gray-600">Aguardando complementação</p>
+          {/* Aguardando complementação */}
+          <div className="bg-white rounded-lg border border-gray-200 p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-3xl font-bold text-gray-900">
+                  {stats.complementacao}
+                </p>
+                <p className="text-sm text-gray-600 mt-1">
+                  Aguardando complementação
+                </p>
+              </div>
+              <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
+                <Clock className="w-6 h-6 text-orange-600" />
+              </div>
+            </div>
           </div>
 
-          <div className="bg-white p-6 rounded-lg border">
-            <p className="text-3xl font-bold">{stats.aprovados}</p>
-            <p className="text-gray-600">Aprovados</p>
-          </div>
-        </div>
-
-        {/* Filtros */}
-        <div className="bg-white rounded-lg border p-6 mb-6">
-          <div className="flex flex-col sm:flex-row gap-4 justify-between">
-            <select
-              className="border px-4 py-2 rounded-lg"
-              value={filterStatus}
-              onChange={(e) => setFilterStatus(e.target.value)}
-            >
-              <option value="todos">Todos</option>
-              <option value="Enviado">Para analisar</option>
-              <option value="Em análise">Em análise</option>
-              <option value="Complementação solicitada">
-                Complementação solicitada
-              </option>
-              <option value="Aprovado">Aprovados</option>
-              <option value="Aprovado com ajuste">Aprovado com ajuste</option>
-              <option value="Indeferido">Indeferidos</option>
-            </select>
-
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
-              <input
-                type="text"
-                placeholder="Buscar por aluno ou título..."
-                className="pl-10 border px-4 py-2 rounded-lg w-full"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
+          {/* Aprovados */}
+          <div className="bg-white rounded-lg border border-gray-200 p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-3xl font-bold text-gray-900">
+                  {stats.aprovados}
+                </p>
+                <p className="text-sm text-gray-600 mt-1">Aprovados</p>
+              </div>
+              <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                <CheckCircle className="w-6 h-6 text-green-600" />
+              </div>
             </div>
           </div>
         </div>
 
+        {/* Filtros */}
+        <div className="bg-white rounded-lg border border-gray-200 p-6 mb-6">
+          <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+
+            {/* Select estilizado */}
+            <select
+              className="px-4 py-2 border border-gray-300 rounded-lg bg-white text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              value={filterStatus}
+              onChange={(e) => setFilterStatus(e.target.value)}
+            >
+              <option value="todos">Todos os status</option>
+              <option value="Enviado">Para analisar</option>
+              <option value="Em análise">Em análise</option>
+              <option value="Complementação solicitada">
+                Aguardando complementação
+              </option>
+              <option value="Aprovado">Aprovados</option>
+              <option value="Aprovado com ajuste">Aprovado com ajuste</option>
+              <option value="Indeferido">Indeferido</option>
+              <option value="Computado">Computado</option>
+              <option value="Rascunho">Rascunho</option>
+            </select>
+
+            {/* Campo de busca estilizado */}
+            <div className="relative w-full sm:w-80">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+              <input
+                type="text"
+                placeholder="Buscar por aluno ou atividade..."
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-700"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
+
+          </div>
+        </div>
+
         {/* Tabela */}
-        <div className="bg-white rounded-lg border overflow-hidden">
+        <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
           <table className="w-full">
-            <thead className="bg-gray-50 border-b">
+            <thead className="bg-gray-50 border-b border-gray-200">
               <tr>
-                <th className="px-6 py-4 text-left">Aluno</th>
-                <th className="px-6 py-4 text-left">Atividade</th>
-                <th className="px-6 py-4 text-left">Status</th>
-                <th className="px-6 py-4 text-left">Arquivo</th>
-                <th className="px-6 py-4 text-left">Ações</th>
+                <th className="px-6 py-4 text-left text-sm font-medium text-gray-900">
+                  Aluno
+                </th>
+                <th className="px-6 py-4 text-left text-sm font-medium text-gray-900">
+                  Atividade
+                </th>
+                <th className="px-6 py-4 text-left text-sm font-medium text-gray-900">
+                  Status
+                </th>
+                <th className="px-6 py-4 text-left text-sm font-medium text-gray-900">
+                  Arquivo
+                </th>
+                <th className="px-6 py-4 text-left text-sm font-medium text-gray-900">
+                  Ações
+                </th>
               </tr>
             </thead>
 
-            <tbody>
+            <tbody className="divide-y divide-gray-200">
               {filtrados.map((r) => (
-                <tr key={r.id} className="hover:bg-gray-50 border-b">
-                  <td className="px-6 py-4 flex items-center space-x-2">
-                    <Users className="w-4 h-4 text-blue-600" />
-                    {r.enviado_por_nome}
+                <tr key={r.id} className="hover:bg-gray-50 transition-colors">
+                  
+                  {/* Aluno */}
+                  <td className="px-6 py-4">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                        <Users className="w-4 h-4 text-blue-600" />
+                      </div>
+                      <span className="text-sm font-medium text-gray-900">
+                        {r.enviado_por_nome}
+                      </span>
+                    </div>
                   </td>
 
-                  <td className="px-6 py-4">{r.atividade_titulo}</td>
+                  {/* Atividade */}
+                  <td className="px-6 py-4">
+                    <span className="text-sm text-gray-900">
+                      {r.atividade_titulo}
+                    </span>
+                  </td>
 
                   {/* Status */}
                   <td className="px-6 py-4">
                     <span
-                      className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(
+                      className={`inline-flex items-center space-x-1 px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(
                         r.status
                       )}`}
                     >
                       {getStatusIcon(r.status)}
-                      <span className="ml-1">{r.status}</span>
+                      <span>{r.status}</span>
                     </span>
                   </td>
 
@@ -223,16 +289,17 @@ export default function AdminRelatoriosPage() {
                     </a>
                   </td>
 
-                  {/* Ação */}
+                  {/* Ações */}
                   <td className="px-6 py-4">
                     <Link
                       href={`/admin/relatorios/${r.id}`}
-                      className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center space-x-1"
+                      className="inline-flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
                     >
                       <Eye className="w-4 h-4" />
                       <span>Analisar</span>
                     </Link>
                   </td>
+
                 </tr>
               ))}
             </tbody>
@@ -244,6 +311,7 @@ export default function AdminRelatoriosPage() {
             Nenhum relatório encontrado.
           </div>
         )}
+
       </div>
     </div>
   );
