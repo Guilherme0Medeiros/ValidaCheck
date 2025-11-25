@@ -10,13 +10,14 @@ export async function login(email: string, password: string) {
         });
         console.log("resposta da API",response.data)
 
-        const { access, refresh, role, username } = response.data;
+        const { access, refresh, role, username, email: userEmail } = response.data;
 
         // Guarda tokens
         localStorage.setItem("access_token", access);
         localStorage.setItem("refresh", refresh);
         localStorage.setItem("role", role);
         localStorage.setItem("username", username);
+        localStorage.setItem("email", userEmail)
 
         return role;
     } catch (error) {

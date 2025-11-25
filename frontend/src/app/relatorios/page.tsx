@@ -17,6 +17,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import api from "@/lib/axios";
 import { useRouter } from "next/navigation";
+import NavBar from "../../../components/navBar";
 
 export default function RelatoriosPage() {
   const router = useRouter();
@@ -114,6 +115,9 @@ export default function RelatoriosPage() {
   }
 
   return (
+    <>
+    <NavBar />
+
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
@@ -245,5 +249,6 @@ export default function RelatoriosPage() {
         
       </div>
     </div>
+    </>
   );
 }

@@ -16,6 +16,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import api from "@/lib/axios";
 import NavBar from "../../../../components/navBar"; 
+import NavBarSecretary from "../../../../components/navBarSecretary";
 
 export default function AdminRelatoriosPage() {
   const router = useRouter();
@@ -179,7 +180,7 @@ export default function AdminRelatoriosPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header unificado */}
-      <NavBar />
+      <NavBarSecretary />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Page Title */}

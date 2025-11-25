@@ -2,11 +2,10 @@
 
 import { Avatar, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger } from "@heroui/react";
 import { BookOpen, FileText, Home, User } from "lucide-react";
-import Link from "next/link";
 import { useEffect, useState } from "react";
 import { logout } from "@/services/auth";
 
-export  default function NavBar() {
+export  default function NavBarSecretary() {
     const [userName, setUserName] = useState('');
     const [email, setEmail] = useState('')
 
@@ -34,27 +33,7 @@ export  default function NavBar() {
               <span className="ml-3 text-xl font-semibold text-gray-900">Valida Check</span>
             </div>
 
-            {/* Navigation */}
-            <nav className="hidden md:flex space-x-8">
-              <Link href='/estudante'>
-                <button className="flex items-center cursor-pointer px-4 py-2 text-blue-600 bg-blue-50 rounded-md hover:bg-blue-100 transition-colors">
-                  <Home className="w-4 h-4 mr-2" />
-                  Início
-                </button>
-              </Link>
-              <Link href='/atividades'>
-                <button className="flex items-center cursor-pointer px-4 py-2 text-blue-500 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors">
-                  <BookOpen className="w-4 h-4 mr-2" />
-                  Atividades
-                </button>
-              </Link>
-              <Link href='/relatorios'>
-                <button className="flex items-center cursor-pointer px-4 py-2 text-yellow-600 hover:text-yellow-700 hover:bg-yellow-50 rounded-md transition-colors">
-                  <FileText className="w-4 h-4 mr-2" />
-                  Relatórios
-                </button>
-              </Link>
-            </nav>
+            
 
             {/* User Profile */}
             <div className="flex items-center space-x-3">
@@ -74,13 +53,13 @@ export  default function NavBar() {
                   variant="flat"
                   className="bg-white border-2 p-3 rounded-lg"
                 >
-                  <DropdownItem key="profile" className="h-14 gap-2">
+                  <DropdownItem key="profile" className="h-14 gap-2 ">
                     <p className="font-semibold text-blue-500">Conectado</p>
                     <p className="font-semibold text-gray-400">{email || '-'}</p>
                   </DropdownItem>
-
+                 
                   <DropdownItem onClick={logout} key="logout" className="text-red-700">
-                    Log Out
+                    Sair
                   </DropdownItem>
                 </DropdownMenu>
               </Dropdown>

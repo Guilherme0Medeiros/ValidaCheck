@@ -1,10 +1,10 @@
 "use client"
 
 import type React from "react"
-import Header from "@/components/Header"
 import { useState, useEffect } from "react"
 import { Calendar, Upload, FileText, Clock, MapPin, Tag, User } from "lucide-react"
 import api from "@/lib/axios"  
+import NavBar from "../../../components/navBar"
 
 export default function SolicitarAtividade() {
   const [formData, setFormData] = useState({
@@ -95,7 +95,7 @@ export default function SolicitarAtividade() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Cabeçalho fixo e funcional */}
-      <Header />
+      <NavBar />
 
       {/* Conteúdo principal */}
       <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">

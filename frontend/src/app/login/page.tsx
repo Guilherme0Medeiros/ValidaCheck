@@ -31,6 +31,9 @@ export default function LoginPage() {
       localStorage.setItem("refresh_token", response.data.refresh);
       localStorage.setItem("role", response.data.role);
       localStorage.setItem("username", response.data.username);
+      localStorage.setItem("email", response.data.email);
+
+      console.log(response.data)
 
       // Redireciona com base no role
       if (response.data.role === "secretary") {
@@ -48,6 +51,7 @@ export default function LoginPage() {
       setLoading(false);
     }
   }
+
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
