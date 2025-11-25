@@ -242,29 +242,7 @@ export default function RelatoriosPage() {
         </div>
 
         {/* BARRA DE PROGRESSO */}
-        <div className="mt-8 bg-white rounded-lg shadow-sm border p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-gray-900">
-              Progresso das Horas Obrigatórias
-            </h3>
-            <span className="text-sm text-gray-600">
-              {horasCompletadas} de {totalHorasObrigatorias} horas
-            </span>
-          </div>
-
-          <div className="w-full bg-gray-200 rounded-full h-3 mb-2">
-            <div
-              className="bg-blue-600 h-3 rounded-full"
-              style={{ width: `${percentualCompleto}%` }}
-            ></div>
-          </div>
-
-          <p className="text-sm text-gray-600">
-            Você completou{" "}
-            <span className="font-semibold text-gray-900">{percentualCompleto}%</span>{" "}
-            de {totalHorasObrigatorias}h obrigatórias
-          </p>
-        </div>
+        
       </div>
     </div>
   );
